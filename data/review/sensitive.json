@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "review_status": "pending_user_review",
+  "updated_at": "2026-11-03",
+  "blocked_tags": [
+    "操逼",
+    "插入",
+    "迪克",
+    "销魂",
+    "低俗",
+    "上吊",
+    "炸死你",
+    "物理超度",
+    "绿帽"
+  ],
+  "blocked_ids": ["114", "298", "432", "1075", "1112", "1164", "1170"],
+  "notes": "Public gallery/search/random/image routes exclude these ids and exact tags. This is a conservative first-pass blocklist, not a final content review. Keep the full catalog intact; adjust only after manual review."
+}

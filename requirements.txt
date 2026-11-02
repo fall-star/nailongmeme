@@ -1,0 +1,10 @@
+# Preferred: use uv (see pyproject.toml / uv.lock) and run `uv sync --python 3.12`.
+# This file is a compatibility fallback for non-uv environments.
+# Core crawler uses only the Python standard library.
+# Pillow is strongly recommended: image decoding validation, dimensions and
+# perceptual hashes are used for the integrity checks and near-duplicate report.
+# It is optional; without it the pipeline falls back to magic-byte validation.
+Pillow>=10.0
+
+# Optional, dev-only: regenerate data/search/pinyin.json via tools/build_pinyin_map.py
+# pypinyin>=0.55

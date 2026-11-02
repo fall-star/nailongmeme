@@ -1,0 +1,8 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import GalleryApp from '../components/GalleryApp.tsx';
+import categories from '../data/tag-categories.json';
+---
+<BaseLayout title="动作专区 · 奶龙表情库" description="按加冕、跳舞、拳击、比心等动作标签筛选奶龙表情。" active="action">
+  <GalleryApp client:only="react" basePath="/actions" allowedTags={categories.action} onlyAllowedTags hideHero categoryTitle="动作专区" categoryDesc="这里只保留动作相关标签。点标签后会在本页直接显示结果。" />
+</BaseLayout>

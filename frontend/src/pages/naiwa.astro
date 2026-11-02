@@ -1,0 +1,11 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import GalleryApp from '../components/GalleryApp.tsx';
+import gallery from '../data/gallery.json';
+import type { MemeItem } from '../lib/types';
+const items = (gallery as { items: MemeItem[] }).items.filter((item) => item.tag.includes('奶蛙'));
+const tags = [...new Set(items.flatMap((item) => item.tag))];
+---
+<BaseLayout title="奶蛙专场 · 奶龙表情库" description="所有带奶蛙标签的表情包，点标签在当前页面继续筛选。" active="naiwa">
+  <GalleryApp client:only="react" initialTag="奶蛙" basePath="/naiwa" allowedTags={tags} hideHero categoryTitle="奶蛙专场" categoryDesc={`${items.length} 张奶蛙表情。点下面的标签继续筛选，不会跳回首页。`} />
+</BaseLayout>

@@ -1,0 +1,89 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import gallery from '../../data/gallery.json';
+import type { MemeItem } from '../../lib/types';
+
+type GalleryData = { total: number; generatedAt: string; items: MemeItem[] };
+
+export function getStaticPaths() {
+  const data = gallery as GalleryData;
+  return data.items.map((item) => {
+    const related = data.items
+      .filter((candidate) => candidate.id !== item.id && candidate.tag.some((tag) => item.tag.includes(tag)))
+      .slice(0, 5);
+    return { params: { id: item.id }, props: { item, related } };
+  });
+}
+
+const { item, related } = Astro.props as { item: MemeItem; related: MemeItem[] };
+---
+<BaseLayout title={`${item.name} · 奶龙表情库`} description={`${item.name}，奶龙/奶蛙表情包，支持单张下载。`} active="all">
+  <main class="detail-wrap shell">
+    <nav class="crumbs" aria-label="面包屑">
+      <a href="/">全部</a><span class="sep">/</span>
+      {item.tag[0] && <><a href={`/tags?tag=${encodeURIComponent(item.tag[0])}`}>{item.tag[0]}</a><span class="sep">/</span></>}
+      <span>{item.name}</span>
+    </nav>
+
+    <div class="detail-layout">
+      <section class="stage" aria-label="图片预览">
+        <img src={item.image} alt={item.name} />
+        <div class="stage-caption">原图 · {item.width} × {item.height} · 单张预览</div>
+      </section>
+
+      <section class="detail-panel">
+        <div class="detail-id">#{item.id} · NAILONG ARCHIVE</div>
+        <h1 class="detail-title">{item.name}</h1>
+        <p class="detail-sub">这是一张奶龙/奶蛙表情，适合在聊天里表达当下的心情。</p>
+        <div class="detail-tags">
+          {item.tag.map((tag) => <a class="tag" href={`/tags?tag=${encodeURIComponent(tag)}`}><span class="hash">#</span>{tag}</a>)}
+        </div>
+        <dl class="meta-table">
+          <div class="meta-row"><dt>格式</dt><dd>{item.format === 'gif' ? 'GIF · 动图' : 'JPG · 静态图'}</dd></div>
+          <div class="meta-row"><dt>尺寸</dt><dd>{item.width} × {item.height}</dd></div>
+          <div class="meta-row"><dt>编号</dt><dd>#{item.id}</dd></div>
+          <div class="meta-row"><dt>下载</dt><dd>免费 · 单张</dd></div>
+        </dl>
+        <div class="action-row">
+          <a class="btn btn-primary" href={item.download}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14" /></svg>
+            下载原图
+          </a>
+          <button class="btn" type="button" id="copy-link" data-id={item.id}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7 0l2-2a5 5 0 0 0-7-7l-1 1" /><path d="M14 11a5 5 0 0 0-7 0l-2 2a5 5 0 0 0 7 7l1-1" /></svg>
+            复制链接
+          </button>
+          <a class="btn btn-ghost" href={`/tags?tag=${encodeURIComponent(item.tag[0] || '')}`}>查看同标签</a>
+        </div>
+        <div class="detail-note"><span>✦</span><span>当前版本只提供单张下载。下载前请阅读版权说明；如果这张图不适合公开展示，请通过版权页反馈。</span></div>
+      </section>
+    </div>
+
+    {related.length > 0 && (
+      <section class="related">
+        <div class="related-head"><h2>同一只奶龙，再翻几张</h2><a class="btn btn-sm btn-ghost" href="/">回到全部 →</a></div>
+        <div class="related-grid">
+          {related.map((candidate) => (
+            <a class="meme-card" href={`/meme/${candidate.id}`}>
+              <div class="thumb">
+                <span class={`badge ${candidate.format === 'gif' ? 'gif' : ''}`}>{candidate.format === 'gif' ? 'GIF' : 'JPG'}</span>
+                <img src={candidate.thumb640} alt={candidate.name} loading="lazy" width={candidate.width || undefined} height={candidate.height || undefined} />
+              </div>
+              <div class="card-body"><div class="card-title">{candidate.name}</div><div class="card-tags">{candidate.tag.slice(0, 1).map((tag) => <span>{tag}</span>)}</div></div>
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+  </main>
+  <script>
+    const copyButton = document.querySelector<HTMLButtonElement>('#copy-link');
+    copyButton?.addEventListener('click', async () => {
+      const id = copyButton.dataset.id;
+      const url = `${location.origin}/meme/${id}`;
+      try { await navigator.clipboard.writeText(url); } catch { window.prompt('复制链接', url); }
+      copyButton.textContent = '已复制';
+      setTimeout(() => { copyButton.textContent = '复制链接'; }, 1400);
+    });
+  </script>
+</BaseLayout>

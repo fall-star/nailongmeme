@@ -1,0 +1,31 @@
+---
+const { active = 'all' } = Astro.props;
+const nav = [
+  { key: 'all', label: '全部', href: '/' },
+  { key: 'naiwa', label: '奶蛙', href: '/naiwa' },
+  { key: 'nailong', label: '奶龙', href: '/nailong' },
+  { key: 'mood', label: '情绪', href: '/mood' },
+  { key: 'action', label: '动作', href: '/actions' },
+  { key: 'tags', label: '标签', href: '/tags' },
+];
+---
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="/" aria-label="奶龙表情库首页">
+      <span class="brand-mark">奶</span>
+      <span><span class="brand-name">奶龙表情库</span><span class="brand-sub">NAILONG MEME ARCHIVE</span></span>
+    </a>
+    <nav class="main-nav" aria-label="主导航">
+      {nav.map((item) => (
+        <a class:list={['nav-link', { active: active === item.key }]} href={item.href}>{item.label}</a>
+      ))}
+    </nav>
+    <form class="top-search" action="/" method="get" role="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 20 20"/></svg>
+      <input type="search" name="q" placeholder="搜表情、找心情…" aria-label="搜索表情">
+    </form>
+    <a class="icon-btn random-top" href="/?random=1" title="随机一张" aria-label="随机一张">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8.5" cy="8.5" r="1.3" fill="currentColor" stroke="none"/><circle cx="15.5" cy="15.5" r="1.3" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.3" fill="currentColor" stroke="none"/></svg>
+    </a>
+  </div>
+</header>

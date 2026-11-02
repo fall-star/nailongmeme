@@ -1,0 +1,26 @@
+---
+import '../styles/global.css';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+const {
+  title = '奶龙表情库',
+  description = '奶龙与奶蛙表情包图库，支持搜索、预览和单张下载。',
+  active = 'all',
+  bodyClass = '',
+} = Astro.props;
+---
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#ffd84d" />
+    <title>{title}</title>
+  </head>
+  <body class={bodyClass}>
+    <SiteHeader active={active} />
+    <slot />
+    <SiteFooter />
+  </body>
+</html>

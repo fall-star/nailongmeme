@@ -1,0 +1,12 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import GalleryApp from '../components/GalleryApp.tsx';
+---
+<BaseLayout
+  title="奶龙表情库 · 今天翻哪只奶龙？"
+  description="奶龙与奶蛙表情包图库，支持中文同音字搜索、大图预览和单张下载。"
+  active="all"
+  bodyClass="home-page"
+>
+  <GalleryApp client:only="react" />
+</BaseLayout>

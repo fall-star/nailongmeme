@@ -1,0 +1,11 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import GalleryApp from '../components/GalleryApp.tsx';
+import gallery from '../data/gallery.json';
+import type { MemeItem } from '../lib/types';
+const items = (gallery as { items: MemeItem[] }).items.filter((item) => item.tag.includes('奶龙'));
+const tags = [...new Set(items.flatMap((item) => item.tag))];
+---
+<BaseLayout title="奶龙专场 · 奶龙表情库" description="所有奶龙表情包（未标记奶蛙的图片也归入奶龙），点标签在当前页面继续筛选。" active="nailong">
+  <GalleryApp client:only="react" initialTag="奶龙" basePath="/nailong" allowedTags={tags} hideHero categoryTitle="奶龙专场" categoryDesc={`${items.length} 张奶龙表情。所有未标记「奶蛙」的图片都归入奶龙。`} />
+</BaseLayout>

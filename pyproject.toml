@@ -1,0 +1,30 @@
+[project]
+name = "meme-library"
+version = "0.1.0"
+description = "Nailong / Nai-hub meme library crawler, converter and fuzzy search"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "Pillow>=10.0",
+]
+
+[project.optional-dependencies]
+# Production API (FastAPI + uvicorn).
+api = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+]
+# Only needed when regenerating data/search/pinyin.json with tools/build_pinyin_map.py.
+search-tools = [
+    "pypinyin>=0.55",
+]
+
+[tool.uv]
+# This is a script project; uv manages the environment but does not install
+# the repository itself as a wheel.
+package = false
+
+[dependency-groups]
+dev = [
+    "httpx2>=2.16.0",
+]

@@ -1,0 +1,15 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+<BaseLayout title="关于与下载说明 · 奶龙表情库" description="奶龙表情库的来源、版权和下载说明。" active="tags">
+  <main class="shell" style="padding: 64px 0 90px; max-width: 820px;">
+    <div class="eyebrow"><span class="dot" /> ABOUT THIS ARCHIVE</div>
+    <h1 style="font-size: clamp(38px, 5vw, 62px); letter-spacing: -.05em; margin: 18px 0 18px;">关于这个表情库</h1>
+    <p style="color: var(--muted); line-height: 2; font-size: 14px;">这里整理奶龙与奶蛙相关表情，方便按心情、角色和状态浏览。当前只提供单张下载，不做批量打包。</p>
+    <h2 style="margin-top: 34px;">版权与删除</h2>
+    <p style="color: var(--muted); line-height: 2; font-size: 14px;">图片版权归原权利人所有。本站是非官方、非商业的整理站；如果你认为某张图不适合公开展示，请联系站点维护者处理。部分敏感标签已从公开图库中隐藏，仍保留在本地资料库中供后续人工复审。</p>
+    <h2 style="margin-top: 34px;">下载说明</h2>
+    <p style="color: var(--muted); line-height: 2; font-size: 14px;">单张图片通过 <code>/api/images/&lt;id&gt;?download=1</code> 下载。建议先预览，再下载；请勿将图片用于商业用途或冒充原作者。</p>
+    <p style="margin-top: 30px;"><a class="btn btn-yellow" href="/">回到图库 →</a></p>
+  </main>
+</BaseLayout>

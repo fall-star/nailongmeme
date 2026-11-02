@@ -1,0 +1,7 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import GalleryApp from '../../components/GalleryApp.tsx';
+---
+<BaseLayout title="全部标签 · 奶龙表情库" description="按标签浏览奶龙与奶蛙表情包，点击标签在当前页面筛选。" active="tags">
+  <GalleryApp client:only="react" basePath="/tags" hideHero showAllTags categoryTitle="按标签，找一张" categoryDesc="所有标签都在这里。点标签后会在本页直接显示结果，不会跳回首页。" />
+</BaseLayout>

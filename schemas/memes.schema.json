@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/meme-library/memes.schema.json",
+  "title": "Meme delivery index (memes.json)",
+  "description": "User-facing delivery index. Every item has exactly id, name and tag; images live in img/converted and are looked up as <id>.gif first, then <id>.jpg.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["id", "name", "tag"],
+    "additionalProperties": false,
+    "properties": {
+      "id": {
+        "type": "string",
+        "pattern": "^[0-9]{1,5}$",
+        "description": "Global, never-reused numeric id."
+      },
+      "name": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Visible name copied from the source page."
+      },
+      "tag": {
+        "type": "array",
+        "items": { "type": "string", "minLength": 1 },
+        "uniqueItems": true,
+        "description": "User-maintained tags."
+      }
+    }
+  }
+}

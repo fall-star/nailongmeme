@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "paths": {
+    "catalog": "data/catalog.json",
+    "delivery_catalog": "memes.json",
+    "delivery_catalog_copy": "img/converted/memes.json",
+    "image_dir": "img/raw",
+    "manifest": "data/manifest.json",
+    "state": "data/state.json",
+    "sources": "data/sources.json",
+    "snapshot_dir": "data/snapshots",
+    "report_dir": "reports",
+    "backup_dir": "data/backups",
+    "staging_dir": "data/staging",
+    "journal_dir": "data/journal",
+    "log_dir": "data/logs"
+  },
+  "ids": {
+    "min_width": 0,
+    "max_digits": 5
+  },
+  "download": {
+    "workers": 8,
+    "timeout_seconds": 45,
+    "retries": 4,
+    "max_bytes": 26214400,
+    "request_delay_ms": 0,
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+  },
+  "dedupe": {
+    "near_duplicate_hamming": 4,
+    "near_duplicate_max_pairs": 200
+  },
+  "backup_keep": 50
+}

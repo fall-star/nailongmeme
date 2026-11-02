@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/meme-library/memes.schema.json",
+  "title": "Full meme source catalog (data/catalog.json)",
+  "description": "Full source catalog used for integrity, tagging and incremental crawls. The delivery index (memes.json / img/converted/memes.json) contains only id, name and tag.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "id",
+      "name",
+      "tag",
+      "file",
+      "format",
+      "sha256",
+      "source",
+      "source_url",
+      "added_at"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "pattern": "^[0-9]{1,5}$",
+        "description": "Global, never-reused numeric id. Leading zeros are allowed but not required."
+      },
+      "name": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Visible name copied from the source page."
+      },
+      "tag": {
+        "type": "array",
+        "items": { "type": "string", "minLength": 1 },
+        "uniqueItems": true,
+        "description": "User-maintained tags. Empty on import."
+      },
+      "file": {
+        "type": "string",
+        "pattern": "^img/raw/[0-9]{1,5}\\.(jpg|png|gif|webp|avif|heif|bmp|tiff|svg|ico)$"
+      },
+      "format": {
+        "type": "string",
+        "enum": ["jpeg", "png", "gif", "webp", "avif", "heif", "bmp", "tiff", "svg", "ico"]
+      },
+      "width": { "type": ["integer", "null"], "minimum": 1 },
+      "height": { "type": ["integer", "null"], "minimum": 1 },
+      "bytes": { "type": ["integer", "null"], "minimum": 1 },
+      "sha256": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{64}$"
+      },
+      "source": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Adapter key, e.g. nailong."
+      },
+      "source_id": {
+        "type": "string",
+        "description": "Stable id assigned by the source site; used for idempotent re-crawls."
+      },
+      "source_url": {
+        "type": "string",
+        "pattern": "^https?://"
+      },
+      "source_page": {
+        "type": "string",
+        "pattern": "^https?://"
+      },
+      "added_at": {
+        "type": "string",
+        "format": "date-time"
+      },
+      "pending": {
+        "type": "boolean",
+        "description": "True when the catalog entry exists but its image has not been supplied yet. verify skips file checks for pending entries."
+      }
+    },
+    "additionalProperties": true
+  }
+}

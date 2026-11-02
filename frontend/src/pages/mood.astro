@@ -1,0 +1,8 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import GalleryApp from '../components/GalleryApp.tsx';
+import categories from '../data/tag-categories.json';
+---
+<BaseLayout title="按情绪找一张 · 奶龙表情库" description="按开心、无语、委屈、生气等情绪标签筛选奶龙表情。" active="mood">
+  <GalleryApp client:only="react" basePath="/mood" allowedTags={categories.mood} onlyAllowedTags hideHero categoryTitle="按情绪，找一张" categoryDesc="这里只保留情绪相关标签。点标签后会在本页直接显示结果。" />
+</BaseLayout>

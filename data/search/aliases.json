@@ -1,0 +1,3005 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-11-02T22:54:52+08:00",
+  "generator": "tools/build_search_aliases.py",
+  "review_status": "pending_user_review",
+  "notes": [
+    "这是候选同义词表，不是最终语义标准；请逐项审查。",
+    "tag weights 表示该 tag 对该概念的接近程度；1.0 为核心 tag。",
+    "没有列出的 tag 仍可被精确/包含/字符串模糊搜索命中，只是没有同义词扩展。",
+    "不要把奶蛙、奶龙、奶蛋等实体标签合并成情绪标签。"
+  ],
+  "concepts": [
+    {
+      "id": "happy",
+      "label": "开心 / 高兴",
+      "terms": [
+        "开心",
+        "高兴",
+        "快乐",
+        "喜悦",
+        "兴奋",
+        "愉快",
+        "欢乐",
+        "好开心"
+      ],
+      "tags": {
+        "开心": 1.0,
+        "高兴": 1.0,
+        "快乐": 0.95,
+        "兴奋": 0.88
+      }
+    },
+    {
+      "id": "laugh",
+      "label": "大笑 / 笑",
+      "terms": [
+        "大笑",
+        "爆笑",
+        "狂笑",
+        "傻笑",
+        "憨笑",
+        "贱笑",
+        "憋笑",
+        "笑死"
+      ],
+      "tags": {
+        "大笑": 1.0,
+        "傻笑": 0.9,
+        "憨笑": 0.9,
+        "贱笑": 0.86,
+        "憋笑": 0.84,
+        "强颜欢笑": 0.7,
+        "笑里藏刀": 0.64
+      }
+    },
+    {
+      "id": "smile",
+      "label": "微笑 / 保持微笑",
+      "terms": [
+        "微笑",
+        "保持微笑",
+        "会心一笑",
+        "笑一笑"
+      ],
+      "tags": {
+        "微笑": 1.0,
+        "保持微笑": 0.95,
+        "会心一笑": 0.9,
+        "强颜欢笑": 0.74
+      }
+    },
+    {
+      "id": "sad",
+      "label": "伤感 / 难过",
+      "terms": [
+        "伤感",
+        "难过",
+        "伤心",
+        "悲伤",
+        "失落",
+        "心酸",
+        "忧郁",
+        "幽怨",
+        "孤独",
+        "命苦"
+      ],
+      "tags": {
+        "伤感": 1.0,
+        "失落": 0.94,
+        "心酸": 0.92,
+        "忧郁": 0.88,
+        "幽怨": 0.82,
+        "孤独": 0.8,
+        "命苦": 0.72
+      }
+    },
+    {
+      "id": "cry",
+      "label": "大哭 / 委屈 / 崩溃",
+      "terms": [
+        "大哭",
+        "痛哭",
+        "委屈",
+        "崩溃",
+        "扎心",
+        "想哭"
+      ],
+      "tags": {
+        "大哭": 1.0,
+        "委屈": 0.94,
+        "崩溃": 0.9,
+        "扎心": 0.84
+      }
+    },
+    {
+      "id": "speechless",
+      "label": "无语 / 无奈",
+      "terms": [
+        "无语",
+        "无奈",
+        "服了",
+        "没话说",
+        "不知说什么"
+      ],
+      "tags": {
+        "无奈": 0.95,
+        "敷衍": 0.72
+      }
+    },
+    {
+      "id": "blank",
+      "label": "面无表情 / 呆滞",
+      "terms": [
+        "面无表情",
+        "呆滞",
+        "发呆",
+        "面瘫",
+        "无表情",
+        "愣住"
+      ],
+      "tags": {
+        "面无表情": 1.0,
+        "发呆": 0.88
+      }
+    },
+    {
+      "id": "awkward",
+      "label": "尴尬 / 心虚",
+      "terms": [
+        "尴尬",
+        "心虚",
+        "不知所措",
+        "违和",
+        "社死"
+      ],
+      "tags": {
+        "尴尬": 1.0,
+        "心虚": 0.9,
+        "不知所措": 0.86,
+        "违和": 0.72
+      }
+    },
+    {
+      "id": "confused",
+      "label": "疑惑 / 懵",
+      "terms": [
+        "疑惑",
+        "懵",
+        "懵圈",
+        "懵逼",
+        "懵了",
+        "迷茫",
+        "不解"
+      ],
+      "tags": {
+        "疑惑": 1.0,
+        "懵圈": 0.96,
+        "懵逼": 0.94,
+        "懵了": 0.92,
+        "迷茫": 0.78
+      }
+    },
+    {
+      "id": "angry",
+      "label": "生气 / 愤怒",
+      "terms": [
+        "生气",
+        "愤怒",
+        "发火",
+        "暴躁",
+        "烦躁",
+        "气鼓鼓",
+        "不爽",
+        "不高兴",
+        "不服",
+        "气死你"
+      ],
+      "tags": {
+        "生气": 1.0,
+        "愤怒": 0.96,
+        "发火": 0.94,
+        "暴躁": 0.9,
+        "烦躁": 0.84,
+        "气鼓鼓": 0.86,
+        "不爽": 0.82,
+        "不高兴": 0.82,
+        "不服": 0.78,
+        "气死你": 0.72
+      }
+    },
+    {
+      "id": "surprised",
+      "label": "震惊 / 惊讶",
+      "terms": [
+        "震惊",
+        "惊讶",
+        "惊呆",
+        "惊呆了",
+        "惊恐",
+        "惊吓",
+        "惊掉下巴",
+        "吃惊"
+      ],
+      "tags": {
+        "震惊": 1.0,
+        "惊讶": 0.95,
+        "惊呆": 0.94,
+        "惊呆了": 0.92,
+        "惊恐": 0.86,
+        "惊吓": 0.84,
+        "惊掉下巴": 0.82
+      }
+    },
+    {
+      "id": "cute",
+      "label": "可爱 / 卖萌",
+      "terms": [
+        "可爱",
+        "卖萌",
+        "呆萌",
+        "乖巧",
+        "撒娇",
+        "俏皮",
+        "憨",
+        "憨憨",
+        "萌"
+      ],
+      "tags": {
+        "可爱": 1.0,
+        "卖萌": 0.96,
+        "呆萌": 0.92,
+        "乖巧": 0.88,
+        "撒娇": 0.86,
+        "俏皮": 0.84,
+        "憨": 0.72,
+        "憨憨": 0.76
+      }
+    },
+    {
+      "id": "sleep",
+      "label": "睡觉 / 困",
+      "terms": [
+        "睡觉",
+        "困",
+        "困了",
+        "困倦",
+        "赖床",
+        "呼呼大睡",
+        "打哈欠",
+        "想睡"
+      ],
+      "tags": {
+        "睡觉": 1.0,
+        "困了": 0.95,
+        "困倦": 0.92,
+        "赖床": 0.9,
+        "呼呼大睡": 0.88,
+        "打哈欠": 0.84
+      }
+    },
+    {
+      "id": "food",
+      "label": "吃饭 / 馋",
+      "terms": [
+        "吃饭",
+        "干饭",
+        "吃货",
+        "贪吃",
+        "馋",
+        "馋了",
+        "馋嘴",
+        "眼馋",
+        "吃饱了"
+      ],
+      "tags": {
+        "贪吃": 1.0,
+        "吃货": 0.94,
+        "干饭": 0.94,
+        "馋了": 0.9,
+        "馋嘴": 0.88,
+        "眼馋": 0.84,
+        "吃饱了": 0.78
+      }
+    },
+    {
+      "id": "affection",
+      "label": "表白 / 喜欢",
+      "terms": [
+        "表白",
+        "喜欢",
+        "亲嘴",
+        "求婚",
+        "送戒指",
+        "比心",
+        "爱你"
+      ],
+      "tags": {
+        "表白": 1.0,
+        "奶龙表白": 0.96,
+        "亲嘴": 0.9,
+        "求婚": 0.88,
+        "送戒指": 0.84
+      }
+    },
+    {
+      "id": "dance",
+      "label": "跳舞 / 舞蹈",
+      "terms": [
+        "跳舞",
+        "舞蹈",
+        "蹦迪",
+        "钢管舞",
+        "舞狮",
+        "做体操",
+        "摇摆"
+      ],
+      "tags": {
+        "舞蹈": 1.0,
+        "蹦迪": 0.94,
+        "钢管舞": 0.9,
+        "跳舞": 0.94,
+        "舞狮": 0.86,
+        "做体操": 0.82,
+        "摇摆": 0.78
+      }
+    },
+    {
+      "id": "fight",
+      "label": "打架 / 拳击",
+      "terms": [
+        "打架",
+        "拳击",
+        "泰拳",
+        "战斗",
+        "对决",
+        "开枪",
+        "拔刀",
+        "打一架",
+        "威胁"
+      ],
+      "tags": {
+        "拳击": 1.0,
+        "泰拳": 0.95,
+        "战斗": 0.92,
+        "对决": 0.88,
+        "开枪": 0.86,
+        "拔刀": 0.84,
+        "蓄意轰拳": 0.82,
+        "物理超度": 0.74,
+        "威胁": 0.7
+      }
+    },
+    {
+      "id": "run",
+      "label": "跑 / 溜",
+      "terms": [
+        "跑",
+        "奔跑",
+        "快跑",
+        "逃跑",
+        "跑路",
+        "溜了",
+        "狂奔"
+      ],
+      "tags": {
+        "奔跑": 1.0,
+        "快跑": 0.95,
+        "逃跑": 0.92,
+        "跑路": 0.9,
+        "溜了": 0.88,
+        "狂奔": 0.86
+      }
+    },
+    {
+      "id": "observe",
+      "label": "暗中观察 / 偷看",
+      "terms": [
+        "观察",
+        "暗中观察",
+        "偷看",
+        "偷听",
+        "斜眼",
+        "翻白眼"
+      ],
+      "tags": {
+        "暗中观察": 1.0,
+        "偷看": 0.9,
+        "偷听": 0.88,
+        "斜眼": 0.82,
+        "翻白眼": 0.74
+      }
+    },
+    {
+      "id": "approval",
+      "label": "点赞 / 收到 / 问好",
+      "terms": [
+        "点赞",
+        "比耶",
+        "收到",
+        "好的",
+        "积极响应",
+        "敬礼",
+        "问好",
+        "打招呼"
+      ],
+      "tags": {
+        "点赞": 1.0,
+        "比耶": 0.92,
+        "收到": 0.9,
+        "好的": 0.88,
+        "积极响应": 0.84,
+        "敬礼": 0.84,
+        "问好": 0.82
+      }
+    },
+    {
+      "id": "money",
+      "label": "钱 / 贪财",
+      "terms": [
+        "钱",
+        "要钱",
+        "贪财",
+        "爱财",
+        "撒钱",
+        "有钱",
+        "红包"
+      ],
+      "tags": {
+        "要钱": 1.0,
+        "贪财": 0.94,
+        "爱财": 0.92,
+        "撒钱": 0.88,
+        "有钱": 0.86,
+        "发红包": 0.76
+      }
+    },
+    {
+      "id": "work",
+      "label": "上班 / 社畜",
+      "terms": [
+        "上班",
+        "社畜",
+        "不想上班",
+        "不想上学",
+        "努力加载",
+        "加班"
+      ],
+      "tags": {
+        "社畜": 1.0,
+        "不想上班": 0.95,
+        "不想上学": 0.9,
+        "努力加载": 0.82,
+        "先别急": 0.64,
+        "别催": 0.64
+      }
+    },
+    {
+      "id": "abstract",
+      "label": "抽象 / 搞怪",
+      "terms": [
+        "抽象",
+        "魔性",
+        "沙雕",
+        "搞怪",
+        "搞笑",
+        "恶搞",
+        "无厘头",
+        "离谱",
+        "中二",
+        "达达主义"
+      ],
+      "tags": {
+        "抽象": 1.0,
+        "魔性": 0.95,
+        "沙雕": 0.92,
+        "搞怪": 0.9,
+        "搞笑": 0.88,
+        "恶搞": 0.86,
+        "无厘头": 0.8,
+        "离谱": 0.78,
+        "中二": 0.74,
+        "达达主义": 0.68
+      }
+    },
+    {
+      "id": "cool",
+      "label": "装酷 / 自信 / 得瑟",
+      "terms": [
+        "装酷",
+        "耍帅",
+        "自信",
+        "霸气",
+        "潇洒",
+        "得瑟",
+        "嚣张",
+        "傲娇",
+        "自恋",
+        "臭美"
+      ],
+      "tags": {
+        "装酷": 1.0,
+        "耍帅": 0.94,
+        "自信": 0.9,
+        "霸气": 0.9,
+        "潇洒": 0.88,
+        "得瑟": 0.86,
+        "嚣张": 0.84,
+        "傲娇": 0.82,
+        "自恋": 0.8,
+        "臭美": 0.76
+      }
+    },
+    {
+      "id": "disgust",
+      "label": "嫌弃 / 嘲讽",
+      "terms": [
+        "嫌弃",
+        "不屑",
+        "讨厌",
+        "嘲讽",
+        "挑衅",
+        "质疑",
+        "质问",
+        "翻白眼"
+      ],
+      "tags": {
+        "嫌弃": 1.0,
+        "不屑": 0.96,
+        "讨厌": 0.92,
+        "嘲讽": 0.9,
+        "挑衅": 0.86,
+        "质疑": 0.82,
+        "质问": 0.8,
+        "翻白眼": 0.74
+      }
+    },
+    {
+      "id": "fear",
+      "label": "害怕 / 惊恐",
+      "terms": [
+        "害怕",
+        "惊恐",
+        "恐惧",
+        "小心翼翼",
+        "虚弱"
+      ],
+      "tags": {
+        "害怕": 1.0,
+        "惊恐": 0.95,
+        "小心翼翼": 0.78,
+        "虚弱": 0.72
+      }
+    },
+    {
+      "id": "tired",
+      "label": "疲惫 / 摆烂",
+      "terms": [
+        "疲惫",
+        "累",
+        "慵懒",
+        "躺平",
+        "摆烂",
+        "生无可恋",
+        "虚弱"
+      ],
+      "tags": {
+        "疲惫": 1.0,
+        "慵懒": 0.94,
+        "躺平": 0.9,
+        "摆烂": 0.88,
+        "生无可恋": 0.82,
+        "虚弱": 0.74
+      }
+    },
+    {
+      "id": "positive",
+      "label": "期待 / 治愈",
+      "terms": [
+        "期待",
+        "满足",
+        "乐观",
+        "治愈",
+        "舒服",
+        "开心"
+      ],
+      "tags": {
+        "期待": 1.0,
+        "满足": 0.92,
+        "乐观": 0.9,
+        "治愈": 0.86,
+        "舒服": 0.8
+      }
+    },
+    {
+      "id": "holiday",
+      "label": "生日 / 过年",
+      "terms": [
+        "生日",
+        "生日快乐",
+        "过年",
+        "拜年",
+        "红包"
+      ],
+      "tags": {
+        "生日快乐": 1.0,
+        "奶龙拜年": 0.92,
+        "发红包": 0.82
+      }
+    },
+    {
+      "id": "naowa",
+      "label": "奶蛙（实体）",
+      "terms": [
+        "奶蛙",
+        "蛙蛙"
+      ],
+      "tags": {
+        "奶蛙": 1.0
+      }
+    },
+    {
+      "id": "nailong",
+      "label": "奶龙（实体）",
+      "terms": [
+        "奶龙",
+        "龙龙"
+      ],
+      "tags": {
+        "奶龙": 1.0,
+        "奶龙拜年": 0.7
+      }
+    },
+    {
+      "id": "naidan",
+      "label": "奶蛋（实体）",
+      "terms": [
+        "奶蛋",
+        "蛋蛋"
+      ],
+      "tags": {
+        "奶蛋": 1.0
+      }
+    },
+    {
+      "id": "jiahao",
+      "label": "嘉豪（人物）",
+      "terms": [
+        "嘉豪"
+      ],
+      "tags": {
+        "嘉豪": 1.0
+      }
+    },
+    {
+      "id": "letters",
+      "label": "字母",
+      "terms": [
+        "字母",
+        "字母奶龙"
+      ],
+      "tags": {
+        "字母": 1.0
+      }
+    },
+    {
+      "id": "crown",
+      "label": "加冕 / 称帝",
+      "terms": [
+        "加冕",
+        "称帝",
+        "登基",
+        "神圣"
+      ],
+      "tags": {
+        "加冕": 1.0,
+        "称帝": 0.94,
+        "神圣": 0.76
+      }
+    },
+    {
+      "id": "cos",
+      "label": "cos / 头套",
+      "terms": [
+        "cos",
+        "cosplay",
+        "头套",
+        "猫耳",
+        "fumo"
+      ],
+      "tags": {
+        "cos": 1.0,
+        "猫耳": 0.84,
+        "fumo": 0.82,
+        "acid": 0.66
+      }
+    },
+    {
+      "id": "strong",
+      "label": "强壮 / 肌肉",
+      "terms": [
+        "强壮",
+        "肌肉",
+        "大力士",
+        "拳击",
+        "秀肌肉"
+      ],
+      "tags": {
+        "大力士": 1.0,
+        "秀肌肉": 0.94,
+        "拳击": 0.8
+      }
+    },
+    {
+      "id": "silent_laugh",
+      "label": "憋笑 / 强颜欢笑",
+      "terms": [
+        "憋笑",
+        "强颜欢笑",
+        "苦笑",
+        "假笑"
+      ],
+      "tags": {
+        "憋笑": 1.0,
+        "强颜欢笑": 0.92,
+        "笑里藏刀": 0.72
+      }
+    }
+  ],
+  "tag_inventory": [
+    {
+      "tag": "奶蛙",
+      "count": 362,
+      "concepts": [
+        "naowa"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "开心",
+      "count": 124,
+      "concepts": [
+        "happy"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "面无表情",
+      "count": 97,
+      "concepts": [
+        "blank"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "大笑",
+      "count": 53,
+      "concepts": [
+        "laugh"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "忧郁",
+      "count": 45,
+      "concepts": [
+        "sad"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "无奈",
+      "count": 45,
+      "concepts": [
+        "speechless"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "发呆",
+      "count": 40,
+      "concepts": [
+        "blank"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "伤感",
+      "count": 33,
+      "concepts": [
+        "sad"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "字母",
+      "count": 28,
+      "concepts": [
+        "letters"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "震惊",
+      "count": 27,
+      "concepts": [
+        "surprised"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "敷衍",
+      "count": 26,
+      "concepts": [
+        "speechless"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "得意",
+      "count": 24,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "抱臂",
+      "count": 20,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "嘉豪",
+      "count": 19,
+      "concepts": [
+        "jiahao"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "委屈",
+      "count": 16,
+      "concepts": [
+        "cry"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "搞怪",
+      "count": 14,
+      "concepts": [
+        "abstract"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "惊讶",
+      "count": 13,
+      "concepts": [
+        "surprised"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "挑衅",
+      "count": 12,
+      "concepts": [
+        "disgust"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "卖萌",
+      "count": 10,
+      "concepts": [
+        "cute"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "抽象",
+      "count": 10,
+      "concepts": [
+        "abstract"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "搞笑",
+      "count": 10,
+      "concepts": [
+        "abstract"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "生气",
+      "count": 10,
+      "concepts": [
+        "angry"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "魔性",
+      "count": 10,
+      "concepts": [
+        "abstract"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "傲娇",
+      "count": 9,
+      "concepts": [
+        "cool"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "奶龙",
+      "count": 9,
+      "concepts": [
+        "nailong"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "惊恐",
+      "count": 9,
+      "concepts": [
+        "surprised",
+        "fear"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "呆萌",
+      "count": 8,
+      "concepts": [
+        "cute"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "微笑",
+      "count": 8,
+      "concepts": [
+        "smile"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "暗中观察",
+      "count": 8,
+      "concepts": [
+        "observe"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "吃瓜",
+      "count": 7,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "尴尬",
+      "count": 7,
+      "concepts": [
+        "awkward"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "期待",
+      "count": 7,
+      "concepts": [
+        "positive"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "自嘲",
+      "count": 7,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "不屑",
+      "count": 6,
+      "concepts": [
+        "disgust"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "大哭",
+      "count": 6,
+      "concepts": [
+        "cry"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "强颜欢笑",
+      "count": 6,
+      "concepts": [
+        "laugh",
+        "smile",
+        "silent_laugh"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "愤怒",
+      "count": 6,
+      "concepts": [
+        "angry"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "懵逼",
+      "count": 6,
+      "concepts": [
+        "confused"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "疑惑",
+      "count": 6,
+      "concepts": [
+        "confused"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "睡觉",
+      "count": 6,
+      "concepts": [
+        "sleep"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "装酷",
+      "count": 6,
+      "concepts": [
+        "cool"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "贪吃",
+      "count": 6,
+      "concepts": [
+        "food"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "cos",
+      "count": 5,
+      "concepts": [
+        "cos"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "嚣张",
+      "count": 5,
+      "concepts": [
+        "cool"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "嫌弃",
+      "count": 5,
+      "concepts": [
+        "disgust"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "得瑟",
+      "count": 5,
+      "concepts": [
+        "cool"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "心虚",
+      "count": 5,
+      "concepts": [
+        "awkward"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "恶搞",
+      "count": 5,
+      "concepts": [
+        "abstract"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "慵懒",
+      "count": 5,
+      "concepts": [
+        "tired"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "摆烂",
+      "count": 5,
+      "concepts": [
+        "tired"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "玩梗",
+      "count": 5,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "赖床",
+      "count": 5,
+      "concepts": [
+        "sleep"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "叉腰",
+      "count": 4,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "嘲讽",
+      "count": 4,
+      "concepts": [
+        "disgust"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "坏笑",
+      "count": 4,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "奶龙表白",
+      "count": 4,
+      "concepts": [
+        "affection"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "好兄弟",
+      "count": 4,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "威胁",
+      "count": 4,
+      "concepts": [
+        "fight"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "安排",
+      "count": 4,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "密集恐惧",
+      "count": 4,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "干饭",
+      "count": 4,
+      "concepts": [
+        "food"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "思考",
+      "count": 4,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "拒绝",
+      "count": 4,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "沙雕",
+      "count": 4,
+      "concepts": [
+        "abstract"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "治愈",
+      "count": 4,
+      "concepts": [
+        "positive"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "溜了",
+      "count": 4,
+      "concepts": [
+        "run"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "表白",
+      "count": 4,
+      "concepts": [
+        "affection"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "乖巧",
+      "count": 3,
+      "concepts": [
+        "cute"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "依偎",
+      "count": 3,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "俏皮",
+      "count": 3,
+      "concepts": [
+        "cute"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "偷笑",
+      "count": 3,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "升天",
+      "count": 3,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "发疯",
+      "count": 3,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "可爱",
+      "count": 3,
+      "concepts": [
+        "cute"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "吃货",
+      "count": 3,
+      "concepts": [
+        "food"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "害怕",
+      "count": 3,
+      "concepts": [
+        "fear"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "崩溃",
+      "count": 3,
+      "concepts": [
+        "cry"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "懵圈",
+      "count": 3,
+      "concepts": [
+        "confused"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "撒娇",
+      "count": 3,
+      "concepts": [
+        "cute"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "无所谓",
+      "count": 3,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "潇洒",
+      "count": 3,
+      "concepts": [
+        "cool"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "生无可恋",
+      "count": 3,
+      "concepts": [
+        "tired"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "眼馋",
+      "count": 3,
+      "concepts": [
+        "food"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "自信",
+      "count": 3,
+      "concepts": [
+        "cool"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "装模作样",
+      "count": 3,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "质疑",
+      "count": 3,
+      "concepts": [
+        "disgust"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "质问",
+      "count": 3,
+      "concepts": [
+        "disgust"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "阵列",
+      "count": 3,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "不想上班",
+      "count": 2,
+      "concepts": [
+        "work"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "不知所措",
+      "count": 2,
+      "concepts": [
+        "awkward"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "乐观",
+      "count": 2,
+      "concepts": [
+        "positive"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "依赖",
+      "count": 2,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "保持微笑",
+      "count": 2,
+      "concepts": [
+        "smile"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "冷静",
+      "count": 2,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "叹气",
+      "count": 2,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "吨吨吨",
+      "count": 2,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "困了",
+      "count": 2,
+      "concepts": [
+        "sleep"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "多宫格",
+      "count": 2,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "大聪明",
+      "count": 2,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "奶蛋",
+      "count": 2,
+      "concepts": [
+        "naidan"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "好奇",
+      "count": 2,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "孤独",
+      "count": 2,
+      "concepts": [
+        "sad"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "小心翼翼",
+      "count": 2,
+      "concepts": [
+        "fear"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "康康",
+      "count": 2,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "心酸",
+      "count": 2,
+      "concepts": [
+        "sad"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "快跑",
+      "count": 2,
+      "concepts": [
+        "run"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "惊呆了",
+      "count": 2,
+      "concepts": [
+        "surprised"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "懵了",
+      "count": 2,
+      "concepts": [
+        "confused"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "拳击",
+      "count": 2,
+      "concepts": [
+        "fight",
+        "strong"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "摔倒",
+      "count": 2,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "放狠话",
+      "count": 2,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "无聊",
+      "count": 2,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "有点东西",
+      "count": 2,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "梦幻",
+      "count": 2,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "比耶",
+      "count": 2,
+      "concepts": [
+        "approval"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "气鼓鼓",
+      "count": 2,
+      "concepts": [
+        "angry"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "满足",
+      "count": 2,
+      "concepts": [
+        "positive"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "点赞",
+      "count": 2,
+      "concepts": [
+        "approval"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "疲惫",
+      "count": 2,
+      "concepts": [
+        "tired"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "碾压",
+      "count": 2,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "神圣",
+      "count": 2,
+      "concepts": [
+        "crown"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "积极响应",
+      "count": 2,
+      "concepts": [
+        "approval"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "自恋",
+      "count": 2,
+      "concepts": [
+        "cool"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "臭美",
+      "count": 2,
+      "concepts": [
+        "cool"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "舔狗",
+      "count": 2,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "舞蹈",
+      "count": 2,
+      "concepts": [
+        "dance"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "装傻",
+      "count": 2,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "要钱",
+      "count": 2,
+      "concepts": [
+        "money"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "诡异深情",
+      "count": 2,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "调皮",
+      "count": 2,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "贱笑",
+      "count": 2,
+      "concepts": [
+        "laugh"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "跑步",
+      "count": 2,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "跳绳",
+      "count": 2,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "蹦迪",
+      "count": 2,
+      "concepts": [
+        "dance"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "躺平",
+      "count": 2,
+      "concepts": [
+        "tired"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "违和",
+      "count": 2,
+      "concepts": [
+        "awkward"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "霸气",
+      "count": 2,
+      "concepts": [
+        "cool"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "靓仔",
+      "count": 2,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "馋了",
+      "count": 2,
+      "concepts": [
+        "food"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "馋嘴",
+      "count": 2,
+      "concepts": [
+        "food"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "高手",
+      "count": 2,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "acid",
+      "count": 1,
+      "concepts": [
+        "cos"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "fumo",
+      "count": 1,
+      "concepts": [
+        "cos"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "上",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "上吊",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "不开心",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "不想上学",
+      "count": 1,
+      "concepts": [
+        "work"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "不服",
+      "count": 1,
+      "concepts": [
+        "angry"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "不爽",
+      "count": 1,
+      "concepts": [
+        "angry"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "不耐烦",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "不高兴",
+      "count": 1,
+      "concepts": [
+        "angry"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "世另我",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "中二",
+      "count": 1,
+      "concepts": [
+        "abstract"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "亲嘴",
+      "count": 1,
+      "concepts": [
+        "affection"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "会心一笑",
+      "count": 1,
+      "concepts": [
+        "smile"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "伪装",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "低俗",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "倒水",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "假装客气",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "做体操",
+      "count": 1,
+      "concepts": [
+        "dance"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "偷听",
+      "count": 1,
+      "concepts": [
+        "observe"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "偷看",
+      "count": 1,
+      "concepts": [
+        "observe"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "傻笑",
+      "count": 1,
+      "concepts": [
+        "laugh"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "先别急",
+      "count": 1,
+      "concepts": [
+        "work"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "关门",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "兴奋",
+      "count": 1,
+      "concepts": [
+        "happy"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "别催",
+      "count": 1,
+      "concepts": [
+        "work"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "别闹了",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "加冕",
+      "count": 1,
+      "concepts": [
+        "crown"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "加油",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "努力加载",
+      "count": 1,
+      "concepts": [
+        "work"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "劫后余生",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "发火",
+      "count": 1,
+      "concepts": [
+        "angry"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "发红包",
+      "count": 1,
+      "concepts": [
+        "money",
+        "holiday"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "发誓",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "右",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "右上",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "右下",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "吃饱了",
+      "count": 1,
+      "concepts": [
+        "food"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "吃香蕉",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "吐槽",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "吹喇叭",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "吹泡泡",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "呼呼大睡",
+      "count": 1,
+      "concepts": [
+        "sleep"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "命苦",
+      "count": 1,
+      "concepts": [
+        "sad"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "咬牙坚持",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "唱歌",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "嘚瑟",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "困倦",
+      "count": 1,
+      "concepts": [
+        "sleep"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "土味情话",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "大力士",
+      "count": 1,
+      "concepts": [
+        "strong"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "大喇叭",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "大肚子",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "失落",
+      "count": 1,
+      "concepts": [
+        "sad"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "奔跑",
+      "count": 1,
+      "concepts": [
+        "run"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "奶龙拜年",
+      "count": 1,
+      "concepts": [
+        "holiday",
+        "nailong"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "好的",
+      "count": 1,
+      "concepts": [
+        "approval"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "安抚",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "对决",
+      "count": 1,
+      "concepts": [
+        "fight"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "左",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "左上",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "左上和右上",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "左下",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "平静",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "幽怨",
+      "count": 1,
+      "concepts": [
+        "sad"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "开拖拉机",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "开枪",
+      "count": 1,
+      "concepts": [
+        "fight"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "张雪峰",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "强撑",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "快乐",
+      "count": 1,
+      "concepts": [
+        "happy"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "惊吓",
+      "count": 1,
+      "concepts": [
+        "surprised"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "惊呆",
+      "count": 1,
+      "concepts": [
+        "surprised"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "惊掉下巴",
+      "count": 1,
+      "concepts": [
+        "surprised"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "憋笑",
+      "count": 1,
+      "concepts": [
+        "laugh",
+        "silent_laugh"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "憨",
+      "count": 1,
+      "concepts": [
+        "cute"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "憨憨",
+      "count": 1,
+      "concepts": [
+        "cute"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "憨笑",
+      "count": 1,
+      "concepts": [
+        "laugh"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "懂的都懂",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "战斗",
+      "count": 1,
+      "concepts": [
+        "fight"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "扎心",
+      "count": 1,
+      "concepts": [
+        "cry"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "打包带走",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "打哈欠",
+      "count": 1,
+      "concepts": [
+        "sleep"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "找借口",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "抄作业",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "抗拒",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "拍照",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "拔刀",
+      "count": 1,
+      "concepts": [
+        "fight"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "指下面",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "排队",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "揉肚子",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "提灯",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "插入",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "摇摆",
+      "count": 1,
+      "concepts": [
+        "dance"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "摸肚子",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "撒钱",
+      "count": 1,
+      "concepts": [
+        "money"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "撩人",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "操逼",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "收到",
+      "count": 1,
+      "concepts": [
+        "approval"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "放屁",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "放飞",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "敬礼",
+      "count": 1,
+      "concepts": [
+        "approval"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "斜眼",
+      "count": 1,
+      "concepts": [
+        "observe"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "断情绝爱",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "无厘头",
+      "count": 1,
+      "concepts": [
+        "abstract"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "暴躁",
+      "count": 1,
+      "concepts": [
+        "angry"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "月球肚",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "有钱",
+      "count": 1,
+      "concepts": [
+        "money"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "武侠",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "气死你",
+      "count": 1,
+      "concepts": [
+        "angry"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "求婚",
+      "count": 1,
+      "concepts": [
+        "affection"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "泰拳",
+      "count": 1,
+      "concepts": [
+        "fight"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "活着就好",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "淡定",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "深夜摆摊",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "深思",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "灭霸模式",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "炸死你",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "烤肉",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "烦躁",
+      "count": 1,
+      "concepts": [
+        "angry"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "热烈欢迎",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "爱财",
+      "count": 1,
+      "concepts": [
+        "money"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "牛来",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "物理超度",
+      "count": 1,
+      "concepts": [
+        "fight"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "狂奔",
+      "count": 1,
+      "concepts": [
+        "run"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "猫耳",
+      "count": 1,
+      "concepts": [
+        "cos"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "生日快乐",
+      "count": 1,
+      "concepts": [
+        "holiday"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "甩锅",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "真香",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "社畜",
+      "count": 1,
+      "concepts": [
+        "work"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "神龙在世",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "离谱",
+      "count": 1,
+      "concepts": [
+        "abstract"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "秀肌肉",
+      "count": 1,
+      "concepts": [
+        "strong"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "称帝",
+      "count": 1,
+      "concepts": [
+        "crown"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "突发奇想",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "笑里藏刀",
+      "count": 1,
+      "concepts": [
+        "laugh",
+        "silent_laugh"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "绿帽",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "翻白眼",
+      "count": 1,
+      "concepts": [
+        "observe",
+        "disgust"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "耍帅",
+      "count": 1,
+      "concepts": [
+        "cool"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "自拍",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "舒服",
+      "count": 1,
+      "concepts": [
+        "positive"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "舞狮",
+      "count": 1,
+      "concepts": [
+        "dance"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "艾特",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "荡秋千",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "蓄意轰拳",
+      "count": 1,
+      "concepts": [
+        "fight"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "虚弱",
+      "count": 1,
+      "concepts": [
+        "fear",
+        "tired"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "虚空",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "被晾着",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "讨厌",
+      "count": 1,
+      "concepts": [
+        "disgust"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "说教",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "调侃",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "谄媚",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "贪财",
+      "count": 1,
+      "concepts": [
+        "money"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "贱兮兮",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "赞赏",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "趴着",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "跑路",
+      "count": 1,
+      "concepts": [
+        "run"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "跳舞",
+      "count": 1,
+      "concepts": [
+        "dance"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "达达主义",
+      "count": 1,
+      "concepts": [
+        "abstract"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "迪克",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "迷茫",
+      "count": 1,
+      "concepts": [
+        "confused"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "送戒指",
+      "count": 1,
+      "concepts": [
+        "affection"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "逃跑",
+      "count": 1,
+      "concepts": [
+        "run"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "金熊",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "钢管舞",
+      "count": 1,
+      "concepts": [
+        "dance"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "销魂",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "问好",
+      "count": 1,
+      "concepts": [
+        "approval"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "防吃",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "降落",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "高兴",
+      "count": 1,
+      "concepts": [
+        "happy"
+      ],
+      "review": "pending"
+    },
+    {
+      "tag": "鬼鬼祟祟",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "黄头将军",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "黄皮",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    },
+    {
+      "tag": "黑化",
+      "count": 1,
+      "concepts": [],
+      "review": "unmapped"
+    }
+  ]
+}

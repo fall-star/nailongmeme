@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.vendor/
+.uv-python/
+.uv-cache/
+.DS_Store
+
+# Local artifacts / transient data
+data/staging/
+data/journal/
+data/logs/
+data/manifest.json
+data/state.json
+data/sources.json
+data/snapshots/
+data/vision/
+data/archive/
+data/backups/
+data/.write.lock
+
+# Image data, screenshots and historical reports are not distributed
+img/
+design/
+reports/
+
+# Internal working notes
+AI_CONTEXT.md
+CRAWL_SPEC.md
+
+# Release artifacts
+dist/
+frontend/node_modules/
+frontend/dist/
+frontend/.astro/
+
+# Third-party mascot sprite (development reference only)
+frontend/public/mascot/naifrog-sheet.webp
+
+# Deployment/runtime files: include only the API source
+production/*
+!production/api/
+!production/api/__init__.py
+!production/api/main.py
