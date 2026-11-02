@@ -131,7 +131,7 @@ Base URL in development: `http://127.0.0.1:8000/api`
 
 Image endpoints return image bytes only. Use the `meta` or `gallery` endpoints for JSON.
 
-See [docs/API.md](docs/API.md) for parameters and response examples.
+See [docs/API.md](docs/API.md) for parameters and response examples. When the frontend is running, the readable Chinese API guide is at `/api-docs`.
 
 OpenAPI 3.1 IP specification: [docs/openapi-ip.yaml](docs/openapi-ip.yaml) ([JSON](docs/openapi-ip.json)).
 It uses `http://47.118.50.113` as the server and can be imported into Swagger UI, Postman or ReDoc.

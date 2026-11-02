@@ -1,0 +1,252 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+<BaseLayout title="API 文档 · 奶龙表情库" description="奶龙表情库公开 API：搜索、随机、图库、缩略图、原图下载和元数据接口。" bodyClass="api-docs-page">
+  <main class="api-docs shell">
+    <section class="docs-hero">
+      <div class="eyebrow"><span class="dot"></span> PUBLIC API · V1.1</div>
+      <h1>表情包 API<span class="title-dot">.</span></h1>
+      <p class="docs-lead">只读、公开、无需认证。图片接口直接返回 JPG/GIF；需要名称、标签和缩略图时使用对应的 JSON 接口。</p>
+      <div class="docs-base">
+        <span>Base URL</span>
+        <code>http://47.118.50.113/api</code>
+        <span class="docs-status">HTTP · IP 生产环境</span>
+      </div>
+      <div class="docs-actions">
+        <a class="btn btn-yellow" href="/openapi-ip.yaml" target="_blank" rel="noopener">OpenAPI YAML ↗</a>
+        <a class="btn" href="/api/docs" target="_blank" rel="noopener">Swagger UI ↗</a>
+        <a class="btn btn-ghost" href="https://github.com/fall-star/nailongmeme" target="_blank" rel="noopener">GitHub ↗</a>
+      </div>
+    </section>
+
+    <div class="docs-layout">
+      <aside class="docs-toc" aria-label="文档目录">
+        <strong>目录</strong>
+        <a href="#quick">快速开始</a>
+        <a href="#search">01 · 搜索图片</a>
+        <a href="#search-meta">02 · 搜索元数据</a>
+        <a href="#search-list">03 · 多结果搜索</a>
+        <a href="#random">04 · 随机图片</a>
+        <a href="#gallery">05 · 图库与缩略图</a>
+        <a href="#images">06 · 原图与下载</a>
+        <a href="#indexes">07 · 索引</a>
+        <a href="#health">08 · 健康检查</a>
+        <a href="#rules">通用规则</a>
+      </aside>
+
+      <div class="docs-body">
+        <section class="docs-section" id="quick">
+          <div class="section-kicker">QUICK START</div>
+          <h2>先看这三条</h2>
+          <div class="docs-notes">
+            <div class="docs-note"><b>图片直接返回</b><span><code>/api/search</code>、<code>/api/random</code>、<code>/api/images/:id</code> 的响应体就是图片本身，不要按 JSON 解析。</span></div>
+            <div class="docs-note"><b>元数据用 JSON</b><span>需要 id、名称、标签、图片地址时，用 <code>/api/search/meta</code>、<code>/api/random/meta</code> 或 <code>/api/gallery</code>。</span></div>
+            <div class="docs-note"><b>公开数据</b><span>公开图库 1164 张；7 条待审查内容被过滤。未带「奶蛙」标签的条目会派生「奶龙」标签。</span></div>
+          </div>
+          <pre><code>BASE="http://47.118.50.113/api"
+
+# 搜索并保存一张图
+curl "$BASE/search?q=开心" -o meme.jpg
+
+# 看图库第一页的元数据
+curl "$BASE/gallery?limit=12"
+
+# 下载 ID 4 的原图
+curl -OJ "$BASE/images/4?download=1"</code></pre>
+        </section>
+
+        <section class="docs-section" id="search">
+          <div class="docs-endpoint-head"><span class="method get">GET</span><code>/api/search</code><span class="endpoint-tag">image</span></div>
+          <h2>01 · 搜索图片</h2>
+          <p>按关键词搜索并直接返回匹配的图片。支持中文、中文同音错字（例如 <code>开新 → 开心</code>）和基础模糊匹配；没有达到阈值时返回一张随机图片。</p>
+          <h3>查询参数</h3>
+          <table class="docs-table">
+            <thead><tr><th>参数</th><th>必填</th><th>说明</th></tr></thead>
+            <tbody>
+              <tr><td><code>q</code></td><td>是</td><td>关键词，1–64 个字符。</td></tr>
+              <tr><td><code>min_score</code></td><td>否</td><td>最低匹配分，默认 <code>0.80</code>；低于该值返回随机图。</td></tr>
+              <tr><td><code>window</code></td><td>否</td><td>在最高分附近随机选择的范围，默认 <code>0.04</code>。</td></tr>
+              <tr><td><code>seed</code></td><td>否</td><td>随机种子，用于复现。</td></tr>
+              <tr><td><code>stable</code></td><td>否</td><td><code>true</code> 时取候选里 ID 最小的一张。</td></tr>
+            </tbody>
+          </table>
+          <h3>返回</h3>
+          <p><code>200</code>，响应体为 JPG 或 GIF；<code>Content-Type</code> 为 <code>image/jpeg</code> 或 <code>image/gif</code>。不返回 JSON。</p>
+          <pre><code>curl "http://47.118.50.113/api/search?q=开心" -o happy.jpg
+file happy.jpg       # JPEG image data
+curl -I "http://47.118.50.113/api/search?q=开心"</code></pre>
+        </section>
+
+        <section class="docs-section" id="search-meta">
+          <div class="docs-endpoint-head"><span class="method get">GET</span><code>/api/search/meta</code><span class="endpoint-tag json">JSON</span></div>
+          <h2>02 · 搜索元数据</h2>
+          <p>和 <code>/api/search</code> 使用同样的搜索参数，但返回图片信息、匹配方式和回退状态。适合详情页、搜索结果卡片和“没有精确匹配”提示。</p>
+          <pre><code>curl "http://47.118.50.113/api/search/meta?q=开新"
+
+&#123;
+  "id": "4",
+  "name": "乖巧待机",
+  "tag": ["奶蛙", "开心"],
+  "image_url": "http://47.118.50.113/api/images/4",
+  "image_download_url": "http://47.118.50.113/api/images/4?download=1",
+  "width": 134,
+  "height": 132,
+  "format": "jpeg",
+  "source_format": "png",
+  "query": "开新",
+  "matched_field": "tag",
+  "matched_value": "开心",
+  "canonical": "happy",
+  "score": 0.93,
+  "method": "pinyin_tag",
+  "fallback": false,
+  "candidate_count": 156
+&#125;</code></pre>
+          <p class="docs-hint"><b>method</b> 表示命中方式：<code>exact_tag</code>、<code>name_exact</code>、<code>alias_tag</code>、<code>pinyin_tag</code>、<code>fuzzy_tag</code> 或 <code>fallback</code>。当 <code>fallback: true</code> 时，返回的是随机推荐图。</p>
+        </section>
+
+        <section class="docs-section" id="search-list">
+          <div class="docs-endpoint-head"><span class="method get">GET</span><code>/api/search/list</code><span class="endpoint-tag json">JSON</span></div>
+          <h2>03 · 多结果搜索</h2>
+          <p>返回所有达到阈值的匹配，按相关度排序。它不会在没有结果时偷偷塞一张随机图；前端可以自行显示空状态和“随机一张”按钮。</p>
+          <table class="docs-table">
+            <thead><tr><th>参数</th><th>默认</th><th>说明</th></tr></thead>
+            <tbody>
+              <tr><td><code>q</code></td><td>必填</td><td>搜索词。</td></tr>
+              <tr><td><code>min_score</code></td><td><code>0.80</code></td><td>最低匹配分。</td></tr>
+              <tr><td><code>limit</code></td><td><code>40</code></td><td>1–100。</td></tr>
+              <tr><td><code>offset</code></td><td><code>0</code></td><td>分页偏移。</td></tr>
+            </tbody>
+          </table>
+          <pre><code>curl "http://47.118.50.113/api/search/list?q=开心&limit=5"
+
+&#123;
+  "query": "开心",
+  "total": 158,
+  "limit": 5,
+  "offset": 0,
+  "fallback": false,
+  "fallback_reason": null,
+  "items": [
+    &#123;
+      "id": "4",
+      "name": "乖巧待机",
+      "tag": ["奶蛙", "开心"],
+      "score": 1.0,
+      "method": "exact_tag",
+      "thumb_320_url": "http://47.118.50.113/api/thumbs/4/320"
+    &#125;
+  ]
+&#125;</code></pre>
+        </section>
+
+        <section class="docs-section" id="random">
+          <div class="docs-endpoint-head"><span class="method get">GET</span><code>/api/random</code><span class="endpoint-tag">image</span></div>
+          <h2>04 · 随机图片</h2>
+          <p>从公开图库中返回一张随机图片。支持 <code>seed</code>，适合“换一张”或测试可复现结果。</p>
+          <div class="docs-split">
+            <div><h3>图片</h3><pre><code>curl "http://47.118.50.113/api/random" -o random.jpg</code></pre></div>
+            <div><h3>元数据</h3><pre><code>curl "http://47.118.50.113/api/random/meta?seed=7"</code></pre></div>
+          </div>
+          <p class="docs-hint">别名：<code>/api/random/image</code>。随机响应使用 <code>Cache-Control: no-store</code>。</p>
+        </section>
+
+        <section class="docs-section" id="gallery">
+          <div class="docs-endpoint-head"><span class="method get">GET</span><code>/api/gallery</code><span class="endpoint-tag json">JSON</span></div>
+          <h2>05 · 图库与缩略图</h2>
+          <p>图库列表接口，适合图片墙、标签页和分页加载。每条记录包含格式、尺寸、原图地址、下载地址和两档缩略图。</p>
+          <table class="docs-table">
+            <thead><tr><th>参数</th><th>默认</th><th>说明</th></tr></thead>
+            <tbody>
+              <tr><td><code>q</code></td><td>—</td><td>名称或标签的子串过滤。</td></tr>
+              <tr><td><code>tag</code></td><td>—</td><td>单个标签精确过滤。</td></tr>
+              <tr><td><code>tags</code></td><td>—</td><td>逗号分隔的复合标签，必须全部命中，如 <code>奶蛙,大笑</code>。</td></tr>
+              <tr><td><code>format</code></td><td>—</td><td><code>jpeg</code> 或 <code>gif</code>。</td></tr>
+              <tr><td><code>limit</code></td><td><code>48</code></td><td>1–100。</td></tr>
+              <tr><td><code>offset</code></td><td><code>0</code></td><td>分页偏移。</td></tr>
+            </tbody>
+          </table>
+          <pre><code>curl "http://47.118.50.113/api/gallery?tag=奶蛙&limit=2"
+
+&#123;
+  "total": 361,
+  "limit": 2,
+  "offset": 0,
+  "items": [
+    &#123;
+      "id": "3",
+      "name": "舞会现场",
+      "tag": ["奶蛙", "面无表情"],
+      "format": "gif",
+      "width": 240,
+      "height": 240,
+      "image_url": "http://47.118.50.113/api/images/3",
+      "thumb_url": "http://47.118.50.113/api/thumbs/3/640",
+      "thumb_320_url": "http://47.118.50.113/api/thumbs/3/320"
+    &#125;
+  ]
+&#125;</code></pre>
+          <h3>缩略图</h3>
+          <p><code>GET /api/thumbs/:id/320</code> 或 <code>/640</code>，返回 WebP，适合 <code>&lt;img srcset&gt;</code>。GIF 缩略图使用第一帧；原 GIF 仍走原图接口。</p>
+          <pre><code>curl "http://47.118.50.113/api/thumbs/4/320" -o 4.webp</code></pre>
+          <p>单张图库信息：<code>GET /api/gallery/:id</code>，不存在或已被审查过滤时返回 <code>404</code>。</p>
+        </section>
+
+        <section class="docs-section" id="images">
+          <div class="docs-endpoint-head"><span class="method get">GET</span><code>/api/images/:id</code><span class="endpoint-tag">image</span></div>
+          <h2>06 · 原图与下载</h2>
+          <p>按 ID 返回原图。默认内联展示；加 <code>?download=1</code> 时返回附件。</p>
+          <pre><code># 浏览器展示
+curl "http://47.118.50.113/api/images/4" -o 4.jpg
+
+# 下载
+curl -OJ "http://47.118.50.113/api/images/4?download=1"</code></pre>
+          <p>成功响应包含 <code>ETag</code>、<code>Last-Modified</code>、<code>Accept-Ranges</code>，并支持长缓存。未知或待审查 ID 返回 <code>404</code>。</p>
+        </section>
+
+        <section class="docs-section" id="indexes">
+          <div class="docs-endpoint-head"><span class="method get">GET</span><code>/api/memes.json</code><span class="endpoint-tag json">JSON</span></div>
+          <h2>07 · 索引</h2>
+          <p>完整索引包含 1171 条记录，公开索引包含 1164 条；两者都只含 <code>id</code>、<code>name</code>、<code>tag</code>。</p>
+          <pre><code># 完整索引，附件下载
+curl -OJ "http://47.118.50.113/api/memes.json"
+
+# 公开索引（过滤 7 条待审查内容）
+curl "http://47.118.50.113/api/memes.public.json"</code></pre>
+        </section>
+
+        <section class="docs-section" id="health">
+          <div class="docs-endpoint-head"><span class="method get">GET</span><code>/api/health</code><span class="endpoint-tag json">JSON</span></div>
+          <h2>08 · 健康检查</h2>
+          <pre><code>curl "http://47.118.50.113/api/health"
+
+&#123;
+  "status": "ok",
+  "version": "1.1.0",
+  "catalog_entries": 1171,
+  "images": 1171,
+  "public_images": 1164,
+  "hidden_images": 7,
+  "review_status": "pending_user_review",
+  "memes_count": 1171,
+  "search_ready": true
+&#125;</code></pre>
+        </section>
+
+        <section class="docs-section" id="rules">
+          <div class="section-kicker">CONVENTIONS</div>
+          <h2>通用规则</h2>
+          <div class="docs-rules">
+            <div><b>标签规则</b><p>没有「奶蛙」标签的记录在公开 API 中会自动视为「奶龙」；原始 catalog 文件不修改。</p></div>
+            <div><b>复合搜索</b><p>图库使用 <code>?tags=奶蛙,大笑</code> 表示同时命中两个标签；前端搜索框也支持 <code>奶蛙大笑</code>。</p></div>
+            <div><b>审查过滤</b><p><code>data/review/sensitive.json</code> 当前过滤 7 条；这些 ID 在图片、缩略图、图库、搜索和随机结果中均不可见。</p></div>
+            <div><b>缓存</b><p>原图和缩略图可长缓存；搜索和随机使用 <code>no-store</code>；索引短缓存。</p></div>
+            <div><b>限流</b><p>Nginx 按客户端 IP 限流 20 请求/秒，burst 40。批量加载图片时请做懒加载或限制并发。</p></div>
+            <div><b>错误</b><p><code>400</code> 参数无效、<code>404</code> 图片或缩略图不存在、<code>422</code> 查询参数校验失败。</p></div>
+          </div>
+          <p class="docs-footer-note">需要机器可读定义？使用 <a href="/openapi-ip.yaml">OpenAPI 3.1 YAML</a> 或 <a href="/openapi-ip.json">JSON</a>；需要交互调试？打开 <a href="/api/docs">Swagger UI</a>。</p>
+        </section>
+      </div>
+    </div>
+  </main>
+</BaseLayout>
