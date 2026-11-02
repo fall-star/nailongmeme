@@ -1,0 +1,1849 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Nailong Meme Library API",
+    "summary": "Read-only meme library API over HTTP on the production IP.",
+    "description": "Read-only API for the Nailong / Naiwa meme library.\n\nProduction base URL: http://47.118.50.113/api\n\n- Image endpoints return JPG/GIF bytes only, never JSON.\n- Use /search/meta and /random/meta when metadata is required.\n- The public gallery exposes 1,164 entries. Seven entries are hidden by the review filter in data/review/sensitive.json.\n- Entries without a 奶蛙 tag are treated as 奶龙 at runtime.\n- No authentication is required. The production Nginx edge applies 20 requests/second per client IP with burst 40.\n- The API is HTTP-only while the custom domain is pending ICP filing; use the IP base URL above.",
+    "version": "1.1.0",
+    "license": {
+      "name": "MIT",
+      "url": "https://github.com/fall-star/nailongmeme/blob/main/LICENSE"
+    }
+  },
+  "paths": {
+    "/api/health": {
+      "get": {
+        "summary": "Health and library counts",
+        "operationId": "health_api_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "System"
+        ],
+        "description": "Service health and current catalog counts.",
+        "x-rate-limit": "20 requests/second per client IP, burst 40, enforced by Nginx."
+      }
+    },
+    "/api/gallery": {
+      "get": {
+        "summary": "Public gallery metadata with thumbnails and pagination",
+        "operationId": "gallery_api_gallery_get",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 64
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Local name/tag substring filter",
+              "title": "Q"
+            },
+            "description": "Local name/tag substring filter"
+          },
+          {
+            "name": "tag",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 64
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Exact tag filter",
+              "title": "Tag"
+            },
+            "description": "Exact tag filter"
+          },
+          {
+            "name": "tags",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 256
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Comma-separated tags; all must match",
+              "title": "Tags"
+            },
+            "description": "Comma-separated tags; all must match"
+          },
+          {
+            "name": "format",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(jpeg|gif)$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Format"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 48,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GalleryResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Gallery"
+        ],
+        "description": "Paginated public gallery metadata. The total excludes review-filtered entries.",
+        "x-rate-limit": "20 requests/second per client IP, burst 40, enforced by Nginx."
+      }
+    },
+    "/api/gallery/{image_id}": {
+      "get": {
+        "summary": "Metadata for one public image",
+        "operationId": "gallery_item_api_gallery__image_id__get",
+        "parameters": [
+          {
+            "name": "image_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Image Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GalleryItem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Image or thumbnail not found, or hidden by the review filter."
+          }
+        },
+        "tags": [
+          "Gallery"
+        ],
+        "description": "Metadata for one public image. Returns 404 for unknown or review-filtered IDs.",
+        "x-rate-limit": "20 requests/second per client IP, burst 40, enforced by Nginx."
+      }
+    },
+    "/api/thumbs/{image_id}/{size}": {
+      "get": {
+        "summary": "WebP card thumbnail (320 or 640)",
+        "operationId": "thumb_api_thumbs__image_id___size__get",
+        "parameters": [
+          {
+            "name": "image_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Image Id"
+            }
+          },
+          {
+            "name": "size",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "enum": [
+                320,
+                640
+              ],
+              "title": "Size"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "WebP thumbnail bytes. Cached as immutable.",
+            "content": {
+              "image/webp": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Image or thumbnail not found, or hidden by the review filter."
+          }
+        },
+        "tags": [
+          "Gallery"
+        ],
+        "description": "WebP card thumbnail. GIFs use the first frame; the original image remains at /api/images/{id}.",
+        "x-rate-limit": "20 requests/second per client IP, burst 40, enforced by Nginx."
+      }
+    },
+    "/api/memes.public.json": {
+      "get": {
+        "summary": "Public 1164-entry index, excluding blocked review items",
+        "operationId": "memes_public_api_memes_public_json_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "tags": [
+          "Metadata"
+        ],
+        "description": "Public 1,164-entry metadata index, excluding review-filtered entries.",
+        "x-rate-limit": "20 requests/second per client IP, burst 40, enforced by Nginx."
+      }
+    },
+    "/api/search/list": {
+      "get": {
+        "summary": "Multi-result keyword search metadata (ranked; no random fallback)",
+        "operationId": "search_list_api_search_list_get",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "title": "Q"
+            }
+          },
+          {
+            "name": "min_score",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "maximum": 1,
+              "minimum": 0,
+              "default": 0.8,
+              "title": "Min Score"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 40,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid search parameters."
+          }
+        },
+        "tags": [
+          "Search"
+        ],
+        "description": "Ranked multi-result search. Returns an empty items array and fallback=true when there is no match; it does not silently return a random image.",
+        "x-rate-limit": "20 requests/second per client IP, burst 40, enforced by Nginx."
+      }
+    },
+    "/api/search": {
+      "get": {
+        "summary": "Keyword search: return the matched image bytes",
+        "operationId": "search_api_search_get",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "description": "Keyword or Chinese homophone",
+              "title": "Q"
+            },
+            "description": "Keyword or Chinese homophone"
+          },
+          {
+            "name": "min_score",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "maximum": 1,
+              "minimum": 0,
+              "description": "Below this score, return a random image",
+              "default": 0.8,
+              "title": "Min Score"
+            },
+            "description": "Below this score, return a random image"
+          },
+          {
+            "name": "window",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "maximum": 0.5,
+              "minimum": 0,
+              "description": "Randomize among scores within this window of the best",
+              "default": 0.04,
+              "title": "Window"
+            },
+            "description": "Randomize among scores within this window of the best"
+          },
+          {
+            "name": "seed",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional seed for reproducible random selection",
+              "title": "Seed"
+            },
+            "description": "Optional seed for reproducible random selection"
+          },
+          {
+            "name": "stable",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Choose the lowest id in the top group instead of random",
+              "default": false,
+              "title": "Stable"
+            },
+            "description": "Choose the lowest id in the top group instead of random"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Raw JPG/GIF image bytes.",
+            "content": {
+              "image/jpeg": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/gif": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid search parameters."
+          }
+        },
+        "tags": [
+          "Search"
+        ],
+        "description": "Search and return the matched image as raw bytes. If no match reaches min_score, a random image is returned.",
+        "x-rate-limit": "20 requests/second per client IP, burst 40, enforced by Nginx."
+      }
+    },
+    "/api/search/meta": {
+      "get": {
+        "summary": "Keyword search metadata (JSON); use /search for the image itself",
+        "operationId": "search_meta_api_search_meta_get",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "title": "Q"
+            }
+          },
+          {
+            "name": "min_score",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "maximum": 1,
+              "minimum": 0,
+              "default": 0.8,
+              "title": "Min Score"
+            }
+          },
+          {
+            "name": "window",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "maximum": 0.5,
+              "minimum": 0,
+              "default": 0.04,
+              "title": "Window"
+            }
+          },
+          {
+            "name": "seed",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Seed"
+            }
+          },
+          {
+            "name": "stable",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Stable"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid search parameters."
+          }
+        },
+        "tags": [
+          "Search"
+        ],
+        "description": "Search metadata. Use this endpoint when the client needs id, name, tag, image_url, method, score or fallback status.",
+        "x-rate-limit": "20 requests/second per client IP, burst 40, enforced by Nginx."
+      }
+    },
+    "/api/search/image": {
+      "get": {
+        "summary": "Alias of /api/search: return the matched image bytes",
+        "operationId": "search_image_api_search_image_get",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "title": "Q"
+            }
+          },
+          {
+            "name": "min_score",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "maximum": 1,
+              "minimum": 0,
+              "default": 0.8,
+              "title": "Min Score"
+            }
+          },
+          {
+            "name": "window",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "maximum": 0.5,
+              "minimum": 0,
+              "default": 0.04,
+              "title": "Window"
+            }
+          },
+          {
+            "name": "seed",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Seed"
+            }
+          },
+          {
+            "name": "stable",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Stable"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Raw JPG/GIF image bytes.",
+            "content": {
+              "image/jpeg": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/gif": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid search parameters."
+          }
+        },
+        "tags": [
+          "Search"
+        ],
+        "description": "Alias of /api/search. Returns raw image bytes.",
+        "x-rate-limit": "20 requests/second per client IP, burst 40, enforced by Nginx."
+      }
+    },
+    "/api/random": {
+      "get": {
+        "summary": "Return one random image (raw JPG/GIF bytes)",
+        "operationId": "random_image_api_random_get",
+        "parameters": [
+          {
+            "name": "seed",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional seed for reproducible selection",
+              "title": "Seed"
+            },
+            "description": "Optional seed for reproducible selection"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Raw JPG/GIF image bytes.",
+            "content": {
+              "image/jpeg": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/gif": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Random"
+        ],
+        "description": "Return one random public image as raw JPG/GIF bytes.",
+        "x-rate-limit": "20 requests/second per client IP, burst 40, enforced by Nginx."
+      }
+    },
+    "/api/random/meta": {
+      "get": {
+        "summary": "Random image metadata (JSON); use /random for the image itself",
+        "operationId": "random_meta_api_random_meta_get",
+        "parameters": [
+          {
+            "name": "seed",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Seed"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RandomResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Random"
+        ],
+        "description": "Return metadata for one random public image.",
+        "x-rate-limit": "20 requests/second per client IP, burst 40, enforced by Nginx."
+      }
+    },
+    "/api/random/image": {
+      "get": {
+        "summary": "Alias of /api/random: return a random image",
+        "operationId": "random_image_redirect_api_random_image_get",
+        "parameters": [
+          {
+            "name": "seed",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Seed"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Raw JPG/GIF image bytes.",
+            "content": {
+              "image/jpeg": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/gif": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Random"
+        ],
+        "description": "Alias of /api/random. Returns raw image bytes.",
+        "x-rate-limit": "20 requests/second per client IP, burst 40, enforced by Nginx."
+      }
+    },
+    "/api/images/{image_id}": {
+      "get": {
+        "summary": "Download or display one image by id",
+        "operationId": "image_api_images__image_id__get",
+        "parameters": [
+          {
+            "name": "image_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Image Id"
+            }
+          },
+          {
+            "name": "download",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Send as attachment instead of inline",
+              "default": false,
+              "title": "Download"
+            },
+            "description": "Send as attachment instead of inline"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Raw JPG/GIF image bytes.",
+            "content": {
+              "image/jpeg": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/gif": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Image or thumbnail not found, or hidden by the review filter."
+          }
+        },
+        "tags": [
+          "Images"
+        ],
+        "description": "Original JPG/GIF image bytes. Add download=true to request an attachment.",
+        "x-rate-limit": "20 requests/second per client IP, burst 40, enforced by Nginx."
+      }
+    },
+    "/api/memes.json": {
+      "get": {
+        "summary": "Download the slim memes.json index",
+        "operationId": "memes_json_api_memes_json_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "headers": {
+              "Content-Disposition": {
+                "description": "Attachment filename.",
+                "schema": {
+                  "type": "string",
+                  "example": "attachment; filename=\"memes.json\""
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Metadata"
+        ],
+        "description": "Complete 1,171-entry metadata index, returned as a JSON attachment. The derived 奶龙 tag is included in the response.",
+        "x-rate-limit": "20 requests/second per client IP, burst 40, enforced by Nginx."
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "GalleryItem": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "tag": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Tag"
+          },
+          "image_url": {
+            "type": "string",
+            "title": "Image Url"
+          },
+          "image_download_url": {
+            "type": "string",
+            "title": "Image Download Url"
+          },
+          "image_path": {
+            "type": "string",
+            "title": "Image Path"
+          },
+          "width": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Width"
+          },
+          "height": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Height"
+          },
+          "format": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Format"
+          },
+          "source_format": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Format"
+          },
+          "bytes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bytes"
+          },
+          "thumb_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Thumb Url"
+          },
+          "thumb_320_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Thumb 320 Url"
+          },
+          "thumb_640_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Thumb 640 Url"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "tag",
+          "image_url",
+          "image_download_url",
+          "image_path"
+        ],
+        "title": "GalleryItem"
+      },
+      "GalleryResponse": {
+        "properties": {
+          "total": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Total"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Limit"
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Offset"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/GalleryItem"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "type": "object",
+        "required": [
+          "total",
+          "limit",
+          "offset",
+          "items"
+        ],
+        "title": "GalleryResponse"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HealthResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version"
+          },
+          "catalog_entries": {
+            "type": "integer",
+            "title": "Catalog Entries"
+          },
+          "images": {
+            "type": "integer",
+            "title": "Images"
+          },
+          "public_images": {
+            "type": "integer",
+            "title": "Public Images"
+          },
+          "hidden_images": {
+            "type": "integer",
+            "title": "Hidden Images"
+          },
+          "review_status": {
+            "type": "string",
+            "title": "Review Status"
+          },
+          "memes_count": {
+            "type": "integer",
+            "title": "Memes Count"
+          },
+          "search_ready": {
+            "type": "boolean",
+            "title": "Search Ready"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "version",
+          "catalog_entries",
+          "images",
+          "public_images",
+          "hidden_images",
+          "review_status",
+          "memes_count",
+          "search_ready"
+        ],
+        "title": "HealthResponse"
+      },
+      "RandomResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "tag": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Tag"
+          },
+          "image_url": {
+            "type": "string",
+            "title": "Image Url"
+          },
+          "image_download_url": {
+            "type": "string",
+            "title": "Image Download Url"
+          },
+          "image_path": {
+            "type": "string",
+            "title": "Image Path"
+          },
+          "width": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Width"
+          },
+          "height": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Height"
+          },
+          "format": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Format"
+          },
+          "source_format": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Format"
+          },
+          "bytes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bytes"
+          },
+          "thumb_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Thumb Url"
+          },
+          "thumb_320_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Thumb 320 Url"
+          },
+          "thumb_640_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Thumb 640 Url"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "tag",
+          "image_url",
+          "image_download_url",
+          "image_path"
+        ],
+        "title": "RandomResponse"
+      },
+      "SearchListItem": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "tag": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Tag"
+          },
+          "image_url": {
+            "type": "string",
+            "title": "Image Url"
+          },
+          "image_download_url": {
+            "type": "string",
+            "title": "Image Download Url"
+          },
+          "image_path": {
+            "type": "string",
+            "title": "Image Path"
+          },
+          "width": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Width"
+          },
+          "height": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Height"
+          },
+          "format": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Format"
+          },
+          "source_format": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Format"
+          },
+          "bytes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bytes"
+          },
+          "thumb_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Thumb Url"
+          },
+          "thumb_320_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Thumb 320 Url"
+          },
+          "thumb_640_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Thumb 640 Url"
+          },
+          "score": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Score"
+          },
+          "method": {
+            "type": "string",
+            "title": "Method"
+          },
+          "matched_field": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Matched Field"
+          },
+          "matched_value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Matched Value"
+          },
+          "canonical": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Canonical"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "tag",
+          "image_url",
+          "image_download_url",
+          "image_path",
+          "score",
+          "method",
+          "matched_field",
+          "matched_value",
+          "canonical"
+        ],
+        "title": "SearchListItem"
+      },
+      "SearchListResponse": {
+        "properties": {
+          "query": {
+            "type": "string",
+            "title": "Query"
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Total"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Limit"
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Offset"
+          },
+          "fallback": {
+            "type": "boolean",
+            "title": "Fallback"
+          },
+          "fallback_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fallback Reason"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/SearchListItem"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "type": "object",
+        "required": [
+          "query",
+          "total",
+          "limit",
+          "offset",
+          "fallback",
+          "items"
+        ],
+        "title": "SearchListResponse"
+      },
+      "SearchResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "tag": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Tag"
+          },
+          "image_url": {
+            "type": "string",
+            "title": "Image Url"
+          },
+          "image_download_url": {
+            "type": "string",
+            "title": "Image Download Url"
+          },
+          "image_path": {
+            "type": "string",
+            "title": "Image Path"
+          },
+          "width": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Width"
+          },
+          "height": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Height"
+          },
+          "format": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Format"
+          },
+          "source_format": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Format"
+          },
+          "bytes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bytes"
+          },
+          "thumb_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Thumb Url"
+          },
+          "thumb_320_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Thumb 320 Url"
+          },
+          "thumb_640_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Thumb 640 Url"
+          },
+          "query": {
+            "type": "string",
+            "title": "Query"
+          },
+          "matched_field": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Matched Field"
+          },
+          "matched_value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Matched Value"
+          },
+          "canonical": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Canonical"
+          },
+          "score": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Score"
+          },
+          "method": {
+            "type": "string",
+            "title": "Method"
+          },
+          "fallback": {
+            "type": "boolean",
+            "title": "Fallback"
+          },
+          "candidate_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Candidate Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "tag",
+          "image_url",
+          "image_download_url",
+          "image_path",
+          "query",
+          "matched_field",
+          "matched_value",
+          "canonical",
+          "score",
+          "method",
+          "fallback",
+          "candidate_count"
+        ],
+        "title": "SearchResponse"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "http://47.118.50.113",
+      "description": "Production IP (HTTP)"
+    }
+  ],
+  "externalDocs": {
+    "description": "Nailong Meme Library source repository",
+    "url": "https://github.com/fall-star/nailongmeme"
+  },
+  "security": [],
+  "tags": [
+    {
+      "name": "Search",
+      "description": "Keyword and multi-result search."
+    },
+    {
+      "name": "Random",
+      "description": "Random image selection."
+    },
+    {
+      "name": "Gallery",
+      "description": "Public gallery metadata and WebP thumbnails."
+    },
+    {
+      "name": "Images",
+      "description": "Original image bytes and downloads."
+    },
+    {
+      "name": "Metadata",
+      "description": "Catalog indexes."
+    },
+    {
+      "name": "System",
+      "description": "Service health."
+    }
+  ],
+  "x-tagGroups": [
+    {
+      "name": "Browse",
+      "tags": [
+        "Gallery",
+        "Search",
+        "Random",
+        "Images"
+      ]
+    },
+    {
+      "name": "Data and status",
+      "tags": [
+        "Metadata",
+        "System"
+      ]
+    }
+  ]
+}

@@ -133,6 +133,9 @@ Image endpoints return image bytes only. Use the `meta` or `gallery` endpoints f
 
 See [docs/API.md](docs/API.md) for parameters and response examples.
 
+OpenAPI 3.1 IP specification: [docs/openapi-ip.yaml](docs/openapi-ip.yaml) ([JSON](docs/openapi-ip.json)).
+It uses `http://47.118.50.113` as the server and can be imported into Swagger UI, Postman or ReDoc.
+
 ### Tag rule
 
 Any catalog entry without a `奶蛙` tag is treated as `奶龙` at runtime. The source catalog is not rewritten. This rule is applied consistently in search, gallery, random selection and the metadata APIs.

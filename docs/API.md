@@ -2,6 +2,8 @@
 
 Development base URL: `http://127.0.0.1:8000/api`
 
+Production IP OpenAPI document: [openapi-ip.yaml](openapi-ip.yaml) · [JSON](openapi-ip.json) · server `http://47.118.50.113`
+
 All successful image endpoints return image bytes, not JSON. Use the metadata endpoints when `id`, `name`, `tag`, `image_url` or `thumb_url` are needed.
 
 ## Search
