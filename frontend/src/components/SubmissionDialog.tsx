@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import type { ChangeEvent, FormEvent } from 'react';
+import type { ChangeEvent, DragEvent, FormEvent } from 'react';
 
 type Props = {
   open: boolean;
@@ -17,6 +17,7 @@ export default function SubmissionDialog({ open, onClose }: Props) {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [dragActive, setDragActive] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -38,6 +39,36 @@ export default function SubmissionDialog({ open, onClose }: Props) {
   function chooseFile(event: ChangeEvent<HTMLInputElement>) {
     setFile(event.target.files?.[0] ?? null);
     setError('');
+  }
+
+  function acceptDroppedFile(file: File | undefined) {
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      setError('只能拖入图片文件');
+      return;
+    }
+    setFile(file);
+    setError('');
+  }
+
+  function handleDragOver(event: DragEvent<HTMLLabelElement>) {
+    event.preventDefault();
+    event.stopPropagation();
+    event.dataTransfer.dropEffect = 'copy';
+    setDragActive(true);
+  }
+
+  function handleDragLeave(event: DragEvent<HTMLLabelElement>) {
+    event.preventDefault();
+    event.stopPropagation();
+    setDragActive(false);
+  }
+
+  function handleDrop(event: DragEvent<HTMLLabelElement>) {
+    event.preventDefault();
+    event.stopPropagation();
+    setDragActive(false);
+    acceptDroppedFile(event.dataTransfer.files?.[0]);
   }
 
   async function submit(event: FormEvent) {
@@ -98,9 +129,15 @@ export default function SubmissionDialog({ open, onClose }: Props) {
           </div>
         ) : (
           <form className="submit-form" onSubmit={submit}>
-            <label className={preview ? 'submit-file has-preview' : 'submit-file'}>
+            <label
+              className={`submit-file${preview ? ' has-preview' : ''}${dragActive ? ' is-drag' : ''}`}
+              onDragEnter={handleDragOver}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+            >
               <input ref={inputRef} type="file" accept="image/jpeg,image/png,image/gif,image/webp,image/avif,image/heic" onChange={chooseFile} />
-              {preview ? <img src={preview} alt="投稿预览" /> : <><span className="file-plus">＋</span><b>选择一张表情图片</b><small>JPG / PNG / GIF / WebP，最大 25 MB</small></>}
+              {preview ? <img src={preview} alt="投稿预览" /> : <><span className="file-plus">＋</span><b>{dragActive ? '松开鼠标，放入图片' : '拖入一张图片，或点击选择'}</b><small>JPG / PNG / GIF / WebP，最大 25 MB</small></>}
             </label>
             {file && <div className="submit-file-name">{file.name} · {(file.size / 1024 / 1024).toFixed(1)} MB</div>}
 
