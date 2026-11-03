@@ -506,6 +506,20 @@
     $('#folder-path').addEventListener('keydown', (event) => { if (event.key === 'Enter') scanFolder(); });
     $('#apply-common-tags').addEventListener('click', applyCommonTags);
     $('#commit-scan').addEventListener('click', commitScan);
+    $('#refresh-search').addEventListener('click', async () => {
+      const button = $('#refresh-search');
+      button.disabled = true;
+      button.textContent = '刷新中…';
+      try {
+        const result = await api('/api/admin/search/reload', { method: 'POST' });
+        toast(`搜索已刷新，API ${result.version || ''}`);
+      } catch (error) {
+        toast(error.message, true);
+      } finally {
+        button.disabled = false;
+        button.textContent = '刷新搜索';
+      }
+    });
     $('#sync-data').addEventListener('click', async () => {
       const button = $('#sync-data');
       button.disabled = true;

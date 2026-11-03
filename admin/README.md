@@ -91,7 +91,9 @@ data/admin/imports/<scan_id>.json
 
 ## 导入后刷新
 
-如果公开 API 以 `MEME_DEV_RELOAD=1` 启动，catalog 修改后下一次请求会自动重新加载。
+如果公开 API 以 `MEME_DEV_RELOAD=1` 启动，catalog 修改后下一次请求会自动重新加载。管理端的“刷新搜索”按钮会主动请求本地 API，触发 SearchEngine 重载。
+
+`data/search/aliases.json` 是人工审阅过的同义词表，`pinyin.json` 是静态字表；管理端不会自动覆盖这两个文件。标签和精确名称搜索会随 catalog 重载立即更新。
 
 前端静态详情页仍来自 `frontend/src/data/gallery.json`。导入后点击管理端的：
 

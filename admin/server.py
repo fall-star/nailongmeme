@@ -14,6 +14,8 @@ import os
 import re
 import shutil
 import subprocess
+import urllib.error
+import urllib.request
 import uuid
 from pathlib import Path
 from typing import Any, Literal
@@ -379,6 +381,18 @@ def commit(scan_id: str, body: CommitRequest) -> dict[str, Any]:
         # with MEME_DEV_RELOAD=1.  Don't fail the import if that process is down.
         _delete_job(scan_id)
     return result
+
+
+@app.post("/api/admin/search/reload")
+def reload_search() -> dict[str, Any]:
+    """Trigger the local API's dev catalog reload, which rebuilds SearchEngine."""
+    base = os.getenv("MEME_PUBLIC_API_BASE", "http://127.0.0.1:8000").rstrip("/")
+    try:
+        with urllib.request.urlopen(f"{base}/api/health", timeout=8) as response:
+            payload = json.loads(response.read().decode("utf-8"))
+    except (OSError, ValueError, urllib.error.URLError) as exc:
+        raise HTTPException(503, f"local API is not reachable: {exc}") from exc
+    return {"ok": True, "version": payload.get("version"), "public_images": payload.get("public_images")}
 
 
 @app.post("/api/admin/sync-data")
