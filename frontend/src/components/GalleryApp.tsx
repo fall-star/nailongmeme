@@ -400,6 +400,8 @@ export default function GalleryApp({
     if (next) setSelected(next);
   }
 
+  const isSearching = Boolean(query.trim());
+
   async function copyLink() {
     if (!selected) return;
     const url = `${window.location.origin}/meme/${selected.id}`;
@@ -414,7 +416,7 @@ export default function GalleryApp({
 
   return (
     <>
-      <main>
+      <main className={isSearching ? 'search-active' : undefined}>
         {!hideHero && (
           <section className="hero shell">
             <div className="hero-grid">
@@ -442,11 +444,13 @@ export default function GalleryApp({
                   </button>
                   <span className="hero-submit-note">审核通过后公开</span>
                 </div>
-                <div className="hero-meta">
-                  <div><b>{items.length || 1164}</b><span>公开图片</span></div>
-                  <div><b>{tagCounts.size || 303}</b><span>标签</span></div>
-                  <div><b>免费</b><span>单张下载</span></div>
-                </div>
+                {!isSearching && (
+                  <div className="hero-meta">
+                    <div><b>{items.length || 1164}</b><span>公开图片</span></div>
+                    <div><b>{tagCounts.size || 303}</b><span>标签</span></div>
+                    <div><b>免费</b><span>单张下载</span></div>
+                  </div>
+                )}
               </div>
               <HeroReel items={items} />
             </div>
@@ -476,9 +480,11 @@ export default function GalleryApp({
         <section className="library shell" id="library">
           <div className="library-head">
             <div>
-              <div className="section-kicker">THE MEME SHELF</div>
-              <h2 className="section-title">{tag ? `#${tag}` : '随便翻翻'}</h2>
-              <p className="section-desc">{query ? `正在看「${query}」相关表情` : '点开任意一张看大图，喜欢就带走。'}</p>
+              <div className="section-kicker">{isSearching ? 'SEARCH RESULTS' : 'THE MEME SHELF'}</div>
+              <h2 className="section-title">
+                {isSearching ? `「${query.trim()}」的搜索结果` : tag ? `#${tag}` : '随便翻翻'}
+              </h2>
+              {!isSearching && <p className="section-desc">点开任意一张看大图，喜欢就带走。</p>}
             </div>
             <button className="btn btn-yellow library-random" type="button" onClick={randomItem}><DiceIcon /> 随机一张</button>
           </div>

@@ -38,3 +38,11 @@ const nav = [
     </div>
   </div>
 </header>
+<script is:inline>
+  const search = new URLSearchParams(window.location.search).get('q');
+  if (search) {
+    document.querySelectorAll('input[name="q"]').forEach((input) => {
+      input.value = search;
+    });
+  }
+</script>
