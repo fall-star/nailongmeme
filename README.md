@@ -1,5 +1,7 @@
 # Nailong Meme Library
 
+[English](README.md) | [简体中文](README.zh-CN.md)
+
 A self-hosted meme library for Nailong and Naiwa images: a FastAPI read-only API and an Astro static frontend.
 
 
