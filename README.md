@@ -14,7 +14,8 @@ A self-hosted meme library for Nailong and Naiwa images: a FastAPI read-only API
 - Random filmstrip on the home page; cards link to detail pages
 - Optional sprite-sheet desk pet (asset not included, see below)
 - Sensitive-content filter driven by `data/review/sensitive.json`
-- No database and no write API
+- No database
+- Public meme submission and per-image tag suggestions, held in quarantine until local admin review and sync
 
 ## Repository layout
 

@@ -268,6 +268,85 @@
     }
   }
 
+  async function loadTagSuggestions() {
+    const list = $('#tag-suggestion-list');
+    if (!list) return;
+    list.innerHTML = '<div class="submission-empty">加载中…</div>';
+    try {
+      const data = await api('/api/admin/tag-suggestions?status=pending_review');
+      if (!data.items.length) {
+        list.innerHTML = '<div class="submission-empty">暂无待审核 tag 建议。</div>';
+        return;
+      }
+      list.innerHTML = data.items.map((item) => `
+        <article class="tag-suggestion-card" data-suggestion="${escapeHtml(item.suggestion_id)}">
+          <img src="${escapeHtml(item.preview_url)}" alt="">
+          <div class="tag-suggestion-body">
+            <div class="submission-id">#${escapeHtml(item.image_id)} · ${escapeHtml(item.image_name || '')}</div>
+            <div class="suggested-tags">${(item.tags || []).map((tag) => `<span class="tag-chip">${escapeHtml(tag)}</span>`).join('')}</div>
+            ${item.note ? `<p class="suggestion-note">${escapeHtml(item.note)}</p>` : ''}
+            <div class="submission-actions">
+              <button class="btn primary tag-approve">通过并加入本地</button>
+              <button class="btn tag-reject">拒绝</button>
+            </div>
+          </div>
+        </article>`).join('');
+    } catch (error) {
+      list.innerHTML = `<div class="submission-empty">${escapeHtml(error.message)}</div>`;
+    }
+  }
+
+  async function approveTagSuggestion(id) {
+    try {
+      const result = await api(`/api/admin/tag-suggestions/${id}/approve`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      });
+      toast('tag 已加入本地 catalog，记得点击“同步到服务器”');
+      await loadTagSuggestions();
+      await loadStats();
+      await loadTags();
+      await loadImages();
+      console.debug('approved suggestion', result);
+    } catch (error) {
+      toast(error.message, true);
+    }
+  }
+
+  async function rejectTagSuggestion(id) {
+    const reason = window.prompt('拒绝原因（可留空）', '');
+    if (reason === null) return;
+    try {
+      await api(`/api/admin/tag-suggestions/${id}/reject`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason }),
+      });
+      toast('已拒绝 tag 建议');
+      await loadTagSuggestions();
+    } catch (error) {
+      toast(error.message, true);
+    }
+  }
+
+  async function pullInbox() {
+    const button = $('#pull-inbox');
+    button.disabled = true;
+    button.textContent = '拉取中…';
+    try {
+      const result = await api('/api/admin/inbox/pull', { method: 'POST' });
+      toast(`已拉取：${result.new_submissions} 个投稿，${result.new_tag_suggestions} 个 tag 建议`);
+      await loadSubmissions();
+      await loadTagSuggestions();
+    } catch (error) {
+      toast(error.message, true);
+    } finally {
+      button.disabled = false;
+      button.textContent = '拉取线上投稿';
+    }
+  }
+
   async function approveSubmission(id) {
     const card = document.querySelector(`.submission-card[data-id="${CSS.escape(id)}"]`);
     if (!card) return;
@@ -311,7 +390,7 @@
     $$('.view').forEach((view) => view.classList.toggle('active', view.id === `view-${name}`));
     if (name === 'library') { loadStats(); loadImages(); }
     if (name === 'import') { loadStats(); loadTags(); loadSavedScans(); }
-    if (name === 'submissions') { loadSubmissions(); }
+    if (name === 'submissions') { loadSubmissions(); loadTagSuggestions(); }
   }
 
   function showScan(data) {
@@ -617,6 +696,14 @@
       }
     });
     $('#reload-submissions').addEventListener('click', loadSubmissions);
+    $('#reload-tag-suggestions').addEventListener('click', loadTagSuggestions);
+    $('#pull-inbox').addEventListener('click', pullInbox);
+    $('#tag-suggestion-list').addEventListener('click', (event) => {
+      const card = event.target.closest('.tag-suggestion-card');
+      if (!card) return;
+      if (event.target.closest('.tag-approve')) approveTagSuggestion(card.dataset.suggestion);
+      if (event.target.closest('.tag-reject')) rejectTagSuggestion(card.dataset.suggestion);
+    });
     $('#submission-status').addEventListener('change', loadSubmissions);
     $('#submission-list').addEventListener('click', (event) => {
       const card = event.target.closest('.submission-card');

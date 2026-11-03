@@ -126,6 +126,7 @@
         </div>
       </div>
       <div class="toolbar submission-toolbar">
+        <button class="btn primary" id="pull-inbox">拉取线上投稿</button>
         <select id="submission-status">
           <option value="">全部投稿</option>
           <option value="pending_review">待审核</option>
@@ -137,6 +138,12 @@
         <span class="submission-note">投稿原图位于隔离目录，审核通过前不会公开，也不会占用 catalog ID。</span>
       </div>
       <div id="submission-list" class="submission-list"></div>
+
+      <div class="tag-review-head">
+        <div><div class="eyebrow">TAG REVIEW</div><h2>待审核的 tag 建议</h2></div>
+        <button class="btn" id="reload-tag-suggestions">刷新</button>
+      </div>
+      <div id="tag-suggestion-list" class="tag-suggestion-list"></div>
     </section>
   </main>
 

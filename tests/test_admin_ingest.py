@@ -140,3 +140,31 @@ class SubmissionTest(unittest.TestCase):
                 cfg=load_config(self.root),
                 rights_accepted=False,
             )
+
+
+class TagSuggestionTest(unittest.TestCase):
+    def setUp(self) -> None:
+        self.temp = tempfile.TemporaryDirectory(prefix="admin-tag-suggestion-test-")
+        self.root = Path(self.temp.name)
+        load_config(self.root, create=True).ensure_dirs()
+        atomic_write_json(self.root / "data" / "catalog.json", [])
+        image = self.root / "inbox" / "tag-source.png"
+        image.parent.mkdir()
+        Image.new("RGB", (16, 16), (240, 200, 40)).save(image)
+        scan = ingest.scan_single(image, root=self.root)
+        ingest.commit_scan(scan, [{"token": "0000", "name": "标签测试", "tag": ["奶蛙"]}], root=self.root)
+
+    def tearDown(self) -> None:
+        self.temp.cleanup()
+
+    def test_approve_merges_suggested_tags_without_duplicates(self) -> None:
+        from admin import tag_suggestions
+
+        cfg = load_config(self.root)
+        path = cfg.root / "data" / "tag-suggestions"
+        path.mkdir(parents=True, exist_ok=True)
+        atomic_write_json(path / "suggestion.json", {"suggestion_id": "suggestion", "image_id": "1", "image_name": "标签测试", "tags": ["搞笑", "奶蛙"], "status": "pending_review", "note": ""})
+        result = tag_suggestions.approve(cfg, "suggestion")
+        self.assertEqual(result["status"], "approved")
+        catalog = load_catalog(cfg)
+        self.assertEqual(catalog[0]["tag"], ["奶蛙", "搞笑"])

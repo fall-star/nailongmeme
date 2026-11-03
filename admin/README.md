@@ -112,6 +112,29 @@ cd frontend
 pnpm sync-data
 ```
 
+## 线上投稿与 tag 审核
+
+公开站点提供：
+
+```text
+主页搜索下方：我也要投稿
+详情页标签下方：我要打tag
+```
+
+两者都只写入生产隔离目录，不会直接改 catalog：
+
+```text
+data/submissions/<submission_id>/
+data/tag-suggestions/<suggestion_id>.json
+```
+
+管理端“投稿”页点击“拉取线上投稿”，通过 SSH 把新记录拉到本地。然后：
+
+- 图片投稿：填写最终名称/标签，通过后进入本地 catalog
+- tag 建议：通过后合并到已有图片标签
+- 拒绝：只标记建议，不改 catalog
+- 最后点击“同步到服务器”才会修改生产
+
 ## 同步到服务器
 
 管理端右上角的“同步到服务器”会先请求预览，再使用本地 SSH 发布到生产：

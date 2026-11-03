@@ -998,3 +998,65 @@ pre code { color: inherit; background: none; padding: 0; font: inherit; }
   .docs-endpoint-head > code { overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
   pre { font-size: 10px; padding: 12px; }
 }
+
+/* ---------- public submission + tag suggestion ---------- */
+.hero-submit-row { display: flex; align-items: center; gap: 12px; margin-top: 12px; flex-wrap: wrap; }
+.hero-submit { display: inline-flex; align-items: center; gap: 9px; border: 1.5px dashed #b7ad82; border-radius: 12px; background: rgba(255,255,255,.55); color: var(--ink); padding: 8px 11px; text-align: left; transition: .16s ease; }
+.hero-submit:hover { border-color: var(--ink); background: var(--yellow-soft); transform: translateY(-1px); }
+.hero-submit-mark { display: grid; place-items: center; width: 25px; height: 25px; border-radius: 50%; background: var(--yellow); border: 1px solid var(--ink); font-size: 17px; font-weight: 900; }
+.hero-submit b { display: block; font-size: 12px; }
+.hero-submit small { display: block; margin-top: 2px; color: var(--muted); font-size: 9px; }
+.hero-submit-arrow { margin-left: 8px; color: var(--orange); font-weight: 900; }
+.hero-submit-note { color: var(--muted); font-size: 9px; }
+.submit-overlay { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; padding: 20px; background: rgba(34,49,59,.45); backdrop-filter: blur(5px); overflow: auto; }
+.submit-dialog { width: min(720px, 100%); max-height: calc(100vh - 40px); overflow: auto; border: 1.5px solid var(--ink); border-radius: 18px; background: var(--card); color: var(--ink); box-shadow: 0 30px 90px rgba(34,49,59,.3); }
+.submit-head { display: flex; justify-content: space-between; gap: 18px; padding: 22px 24px 16px; border-bottom: 1px solid var(--line); }
+.submit-head h2 { margin: 6px 0; font-size: 30px; letter-spacing: -.05em; }
+.submit-head p { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.7; }
+.submit-close { flex: 0 0 30px; width: 30px; height: 30px; border: 1px solid var(--line); border-radius: 50%; background: transparent; color: var(--ink); font-size: 21px; line-height: 1; }
+.submit-form { padding: 18px 24px 22px; }
+.submit-file { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 145px; gap: 5px; overflow: hidden; border: 1.5px dashed #cfc7a7; border-radius: 12px; background: #fffdf3; cursor: pointer; }
+.submit-file:hover { border-color: var(--ink); background: var(--yellow-soft); }
+.submit-file.has-preview { min-height: 200px; background: #f0ecda; }
+.submit-file input { display: none; }
+.submit-file img { max-width: 100%; max-height: 260px; object-fit: contain; }
+.file-plus { font-size: 28px; line-height: 1; }
+.submit-file b { font-size: 12px; }
+.submit-file small { color: var(--muted); font-size: 9px; }
+.submit-file-name { margin-top: 6px; color: var(--muted); font-size: 9px; text-align: center; }
+.submit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 13px; }
+.submit-field { display: flex; flex-direction: column; gap: 5px; font-size: 10px; font-weight: 800; }
+.submit-field i { color: var(--muted); font-style: normal; font-weight: 500; font-size: 9px; }
+.submit-field input { width: 100%; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); padding: 9px 10px; font-size: 11px; outline: none; }
+.submit-field input:focus { border-color: var(--ink); }
+.submit-rights { display: flex; align-items: flex-start; gap: 7px; margin: 14px 0 0; color: var(--muted); font-size: 10px; line-height: 1.7; }
+.submit-rights input { margin-top: 3px; accent-color: var(--ink); }
+.submit-error { margin-top: 8px; color: #b94838; background: #fbe4df; border-radius: 7px; padding: 8px 10px; font-size: 10px; }
+.submit-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 15px; }
+.submit-success { padding: 45px 24px 50px; text-align: center; }
+.success-mark { display: grid; place-items: center; width: 44px; height: 44px; margin: 0 auto 10px; border-radius: 50%; background: var(--yellow); border: 1.5px solid var(--ink); font-size: 23px; font-weight: 900; }
+.submit-success h3 { margin: 0 0 5px; font-size: 22px; }
+.submit-success p { margin: 0 0 17px; color: var(--muted); font-size: 12px; }
+.tag-suggest { margin: 12px 0 15px; border: 1px dashed #cfc7a7; border-radius: 12px; background: rgba(255,255,255,.45); overflow: hidden; }
+.tag-suggest.is-open { border-color: var(--orange); background: #fffdf3; }
+.tag-suggest-trigger { display: flex; align-items: center; width: 100%; gap: 9px; border: 0; background: transparent; padding: 10px 11px; text-align: left; color: var(--ink); }
+.tag-suggest-trigger:hover { background: var(--yellow-soft); }
+.tag-suggest-icon { display: grid; place-items: center; width: 24px; height: 24px; border: 1px solid var(--orange); border-radius: 7px; color: var(--orange); font-weight: 900; }
+.tag-suggest-trigger b { display: block; font-size: 11px; }
+.tag-suggest-trigger small { display: block; margin-top: 2px; color: var(--muted); font-size: 9px; }
+.tag-suggest-arrow { margin-left: auto; color: var(--orange); font-size: 17px; }
+.tag-suggest-form { display: grid; gap: 8px; padding: 0 12px 12px; }
+.tag-suggest-form label { display: flex; flex-direction: column; gap: 4px; font-size: 9px; font-weight: 800; color: var(--muted); }
+.tag-suggest-form label i { font-style: normal; font-weight: 500; }
+.tag-suggest-form input { border: 1px solid var(--line); border-radius: 7px; background: var(--card); padding: 8px 9px; color: var(--ink); font-size: 11px; outline: none; }
+.tag-suggest-form input:focus { border-color: var(--ink); }
+.tag-suggest-note { color: var(--muted); font-size: 9px; line-height: 1.6; }
+.tag-suggest-actions { display: flex; justify-content: flex-end; gap: 6px; }
+.tag-suggest-error { background: #fbe4df; color: #b94838; border-radius: 6px; padding: 6px 8px; font-size: 9px; }
+.tag-suggest-success { background: #e4f3e8; color: #407a60; border-radius: 6px; padding: 6px 8px; font-size: 9px; }
+@media (max-width: 560px) {
+  .submit-dialog { border-radius: 14px; }
+  .submit-head, .submit-form { padding-left: 16px; padding-right: 16px; }
+  .submit-grid { grid-template-columns: 1fr; }
+  .hero-submit-note { display: none; }
+}

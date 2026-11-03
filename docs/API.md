@@ -105,7 +105,7 @@ Entries without `奶蛙` receive a derived `奶龙` tag at runtime.
 ```json
 {
   "status": "ok",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "catalog_entries": 1171,
   "images": 1171,
   "public_images": 1164,
@@ -115,3 +115,45 @@ Entries without `奶蛙` receive a derived `奶龙` tag at runtime.
   "search_ready": true
 }
 ```
+
+
+## Public write endpoints
+
+These endpoints only write to quarantined inboxes. They never assign a catalog id, mutate the catalog, or return a public image URL.
+
+### `POST /api/submissions`
+
+Raw image body. Query parameters:
+
+- `filename` — original filename
+- `name` — optional suggested name
+- `tag` — optional comma-separated tags
+- `source` — optional provenance
+- `contact` — optional private contact
+- `rights_accepted=true` — required
+
+Returns:
+
+```json
+{"submission_id": "...", "status": "pending_review"}
+```
+
+Maximum body size: 25 MB. Duplicate content returns `status: "duplicate"`.
+
+### `POST /api/tag-suggestions`
+
+```json
+{
+  "image_id": "4",
+  "tags": ["大笑", "上班"],
+  "note": "这个表情更像大笑"
+}
+```
+
+Returns:
+
+```json
+{"suggestion_id": "...", "status": "pending_review"}
+```
+
+Suggestions are reviewed in the local admin app. Only an approved suggestion updates the local catalog; the public image changes only after the admin clicks “同步到服务器”.

@@ -18,6 +18,7 @@ import os
 import random
 import re
 import secrets
+import uuid
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from pathlib import Path
@@ -29,10 +30,13 @@ from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from pydantic import BaseModel, Field
 
 from meme_pipeline.search import SearchEngine
+from meme_pipeline.imaging import extension_for, inspect_image
+from meme_pipeline.maintenance import clean_tag
+from meme_pipeline.util import ValidationError, atomic_write_json, clean_name, iso_local, sha256_file
 
 LOGGER = logging.getLogger("meme_api")
 ID_RE = re.compile(r"^[0-9]{1,5}$")
-VERSION = "1.2.0"
+VERSION = "1.3.0"
 
 
 def _env_int(name: str, default: int) -> int:
@@ -260,6 +264,12 @@ class HealthResponse(BaseModel):
     search_ready: bool
 
 
+class TagSuggestionRequest(BaseModel):
+    image_id: str = Field(min_length=1, max_length=8)
+    tags: list[str] = Field(min_length=1, max_length=5)
+    note: str = Field(default="", max_length=300)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     LOGGER.info("loading meme library from %s", SETTINGS.data_dir)
@@ -289,7 +299,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=list(SETTINGS.cors_origins),
     allow_credentials="*" not in SETTINGS.cors_origins,
-    allow_methods=["GET", "HEAD", "OPTIONS"],
+    allow_methods=["GET", "HEAD", "OPTIONS", "POST"],
     allow_headers=["*"],
     expose_headers=["Content-Disposition", "ETag", "Last-Modified"],
     max_age=86400,
@@ -730,6 +740,127 @@ def memes_json(request: Request) -> JSONResponse:
             "Cache-Control": f"public, max-age={SETTINGS.memes_cache_seconds}",
             "X-Content-Type-Options": "nosniff",
         },
+    )
+
+
+# Public write endpoints.  They write only to quarantined inboxes; neither
+# endpoint mutates the catalog or returns a public image URL.  Admin review and
+# a later local->production sync are required before anything becomes public.
+
+
+def _submission_dir() -> Path:
+    path = SETTINGS.data_dir / "data" / "submissions"
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+
+def _tag_suggestion_dir() -> Path:
+    path = SETTINGS.data_dir / "data" / "tag-suggestions"
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+
+@router.post("/submissions", status_code=201, summary="Submit a meme image for review")
+async def public_submit(
+    request: Request,
+    filename: str = Query(..., min_length=1, max_length=180),
+    name: str = Query("", max_length=120),
+    tag: str = Query("", max_length=300),
+    source: str = Query("", max_length=500),
+    contact: str = Query("", max_length=300),
+    rights_accepted: bool = Query(False),
+) -> JSONResponse:
+    if not rights_accepted:
+        raise HTTPException(status_code=400, detail="必须确认拥有图片投稿和展示权限")
+    body = await request.body()
+    if not body:
+        raise HTTPException(status_code=400, detail="投稿文件为空")
+    if len(body) > 25 * 1024 * 1024:
+        raise HTTPException(status_code=413, detail="投稿文件不能超过 25 MB")
+    safe_name = Path(filename).name or "submission.bin"
+    if Path(safe_name).suffix.lower() not in {".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".tif", ".tiff", ".avif", ".heic", ".heif"}:
+        raise HTTPException(status_code=400, detail="不支持的图片格式")
+    submission_id = uuid.uuid4().hex
+    folder = _submission_dir() / submission_id
+    folder.mkdir(parents=True, exist_ok=False)
+    temp = folder / f"original{Path(safe_name).suffix.lower()}"
+    try:
+        temp.write_bytes(body)
+        meta = inspect_image(temp)
+        digest = sha256_file(temp)
+        library = _get_library(request)
+        duplicate_id = next(
+            (str(entry["id"]) for entry in library.catalog if entry.get("sha256") == digest),
+            None,
+        )
+        tags = [clean_tag(value.strip()) for value in tag.split(",") if value.strip()][:10]
+        record = {
+            "submission_id": submission_id,
+            "status": "duplicate" if duplicate_id else "pending_review",
+            "name": clean_name(name)[:120],
+            "tag": list(dict.fromkeys(tags)),
+            "source": source.strip()[:500],
+            "contact": contact.strip()[:300],
+            "rights_accepted": True,
+            "original": temp.name,
+            "format": meta.format,
+            "width": meta.width,
+            "height": meta.height,
+            "frames": meta.frames,
+            "bytes": len(body),
+            "sha256": digest,
+            "duplicate_id": duplicate_id,
+            "catalog_id": None,
+            "created_at": iso_local(),
+            "reviewed_at": None,
+            "review_note": "",
+        }
+        atomic_write_json(folder / "submission.json", record)
+    except (ValidationError, OSError) as exc:
+        import shutil
+        shutil.rmtree(folder, ignore_errors=True)
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return JSONResponse(
+        {"submission_id": submission_id, "status": record["status"]},
+        status_code=201,
+        headers={"Cache-Control": "no-store"},
+    )
+
+
+@router.post("/tag-suggestions", status_code=201, summary="Suggest tags for an existing public image")
+def suggest_tags(payload: TagSuggestionRequest, request: Request) -> JSONResponse:
+    library = _get_library(request)
+    image_id = payload.image_id.strip()
+    if image_id not in library.public_by_id:
+        raise HTTPException(status_code=404, detail="image not found")
+    tags: list[str] = []
+    try:
+        for value in payload.tags:
+            tag = clean_tag(str(value).strip())
+            if tag not in tags:
+                tags.append(tag)
+    except ValidationError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    if not tags:
+        raise HTTPException(status_code=400, detail="至少提交一个标签")
+    suggestion_id = uuid.uuid4().hex
+    entry = library.public_by_id[image_id]
+    record = {
+        "suggestion_id": suggestion_id,
+        "image_id": image_id,
+        "image_name": entry.get("name", ""),
+        "tags": tags,
+        "note": payload.note.strip()[:300],
+        "status": "pending_review",
+        "created_at": iso_local(),
+        "reviewed_at": None,
+        "review_note": "",
+    }
+    atomic_write_json(_tag_suggestion_dir() / f"{suggestion_id}.json", record)
+    return JSONResponse(
+        {"suggestion_id": suggestion_id, "status": "pending_review"},
+        status_code=201,
+        headers={"Cache-Control": "no-store"},
     )
 
 

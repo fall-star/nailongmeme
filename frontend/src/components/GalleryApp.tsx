@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { FormEvent, MouseEvent } from 'react';
 import type { MemeItem } from '../lib/types';
 import Mascot from './Mascot';
+import SubmissionDialog from './SubmissionDialog';
 
 type FormatFilter = 'all' | 'gif' | 'jpeg';
 type SortOrder = 'id-desc' | 'name';
@@ -185,6 +186,7 @@ export default function GalleryApp({
   const [searchOrder, setSearchOrder] = useState<Map<string, number>>(new Map());
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchFallback, setSearchFallback] = useState(false);
+  const [submissionOpen, setSubmissionOpen] = useState(false);
   const [tagsExpanded, setTagsExpanded] = useState(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const openedRandom = useRef(false);
@@ -425,6 +427,14 @@ export default function GalleryApp({
                   <input type="search" value={queryInput} onChange={(event) => setQueryInput(event.target.value)} placeholder="搜「开心」「奶蛙大笑」…" aria-label="搜索表情" />
                   <button className="btn btn-primary" type="submit"><span>搜一下</span></button>
                 </form>
+                <div className="hero-submit-row">
+                  <button className="hero-submit" type="button" onClick={() => setSubmissionOpen(true)}>
+                    <span className="hero-submit-mark">＋</span>
+                    <span><b>我也要投稿</b><small>分享一张好用的奶龙表情</small></span>
+                    <span className="hero-submit-arrow">↗</span>
+                  </button>
+                  <span className="hero-submit-note">审核通过后公开</span>
+                </div>
                 <div className="search-hint"><span>同音字也能搜：</span><kbd>开新</kbd><span>→ 开心</span><span>·</span><span>组合标签：奶蛙大笑</span></div>
                 <div className="tag-row" aria-label="热门标签">
                   {heroTags.map((value) => (
@@ -538,6 +548,7 @@ export default function GalleryApp({
       <a className="fab-random" href="#random" onClick={(event) => { event.preventDefault(); randomItem(); }} aria-label="随机一张"><DiceIcon /> 随机一张</a>
 
       {!hideHero && <Mascot items={items} />}
+      {!hideHero && <SubmissionDialog open={submissionOpen} onClose={() => setSubmissionOpen(false)} />}
 
       <dialog className="lightbox" ref={dialogRef} onClose={() => setSelected(null)} onCancel={() => setSelected(null)}>
         {selected && (

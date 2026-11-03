@@ -26,7 +26,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from admin import ingest, publish, submissions
+from admin import ingest, publish, remote_inbox, submissions, tag_suggestions
 from meme_pipeline.config import Config
 from meme_pipeline.util import ValidationError
 
@@ -201,6 +201,14 @@ class SubmissionReject(BaseModel):
 
 class SyncRequest(BaseModel):
     confirm: bool = False
+
+
+class TagSuggestionApprove(BaseModel):
+    tags: list[str] | None = None
+
+
+class TagSuggestionReject(BaseModel):
+    reason: str = Field(default="", max_length=500)
 
 
 @app.get("/", include_in_schema=False)
@@ -529,6 +537,35 @@ async def create_submission(
     except ValidationError as exc:
         raise HTTPException(400, str(exc)) from exc
     return result
+
+
+@app.post("/api/admin/inbox/pull")
+def pull_public_inbox() -> dict[str, Any]:
+    try:
+        return remote_inbox.pull(cfg())
+    except (RuntimeError, OSError, ValueError) as exc:
+        raise HTTPException(503, str(exc)) from exc
+
+
+@app.get("/api/admin/tag-suggestions")
+def admin_tag_suggestions(status: str = "") -> dict[str, Any]:
+    return {"items": tag_suggestions.list_suggestions(cfg(), status=status)}
+
+
+@app.post("/api/admin/tag-suggestions/{suggestion_id}/approve")
+def approve_tag_suggestion(suggestion_id: str, body: TagSuggestionApprove) -> dict[str, Any]:
+    try:
+        return tag_suggestions.approve(cfg(), suggestion_id, tags=body.tags)
+    except ValidationError as exc:
+        raise HTTPException(400, str(exc)) from exc
+
+
+@app.post("/api/admin/tag-suggestions/{suggestion_id}/reject")
+def reject_tag_suggestion(suggestion_id: str, body: TagSuggestionReject) -> dict[str, Any]:
+    try:
+        return tag_suggestions.reject(cfg(), suggestion_id, body.reason)
+    except ValidationError as exc:
+        raise HTTPException(400, str(exc)) from exc
 
 
 @app.get("/api/admin/submissions")

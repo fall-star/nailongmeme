@@ -2,6 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import gallery from '../../data/gallery.json';
 import type { MemeItem } from '../../lib/types';
+import TagSuggest from '../../components/TagSuggest.tsx';
 
 type GalleryData = { total: number; generatedAt: string; items: MemeItem[] };
 
@@ -38,6 +39,7 @@ const { item, related } = Astro.props as { item: MemeItem; related: MemeItem[] }
         <div class="detail-tags">
           {item.tag.map((tag) => <a class="tag" href={`/tags?tag=${encodeURIComponent(tag)}`}><span class="hash">#</span>{tag}</a>)}
         </div>
+        <TagSuggest client:visible imageId={item.id} imageName={item.name} existingTags={item.tag} />
         <dl class="meta-table">
           <div class="meta-row"><dt>格式</dt><dd>{item.format === 'gif' ? 'GIF · 动图' : 'JPG · 静态图'}</dd></div>
           <div class="meta-row"><dt>尺寸</dt><dd>{item.width} × {item.height}</dd></div>
@@ -53,7 +55,6 @@ const { item, related } = Astro.props as { item: MemeItem; related: MemeItem[] }
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7 0l2-2a5 5 0 0 0-7-7l-1 1" /><path d="M14 11a5 5 0 0 0-7 0l-2 2a5 5 0 0 0 7 7l1-1" /></svg>
             复制链接
           </button>
-          <a class="btn btn-ghost" href={`/tags?tag=${encodeURIComponent(item.tag[0] || '')}`}>查看同标签</a>
         </div>
         <div class="detail-note"><span>✦</span><span>当前版本只提供单张下载。下载前请阅读版权说明；如果这张图不适合公开展示，请通过版权页反馈。</span></div>
       </section>
