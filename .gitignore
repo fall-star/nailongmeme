@@ -33,6 +33,7 @@ AI_CONTEXT.md
 CRAWL_SPEC.md
 
 # Release artifacts
+release/
 dist/
 frontend/node_modules/
 frontend/dist/

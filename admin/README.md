@@ -59,7 +59,11 @@ img/raw/<id>.<ext>           原始文件
 img/converted/<id>.jpg|gif   公开图片
 img/thumbs/320/<id>.webp     卡片缩略图
 img/thumbs/640/<id>.webp     大图缩略图
+data/manifest.json           来源与 dhash 元数据
+img/thumbs/manifest.json     缩略图尺寸与大小索引
 ```
+
+导入成功后同时写入来源 manifest 和缩略图 manifest，避免 `verify` 产生缺失 provenance 的警告。
 
 默认 `status: draft`。在“素材库”里补名称和标签后，把状态改为 `published`。
 
@@ -74,6 +78,16 @@ img/thumbs/640/<id>.webp     大图缩略图
 - 不改变 ID，不移动文件
 
 保存后会写 catalog、`memes.json`、`data/state.json` 和本地审计日志。
+
+## 导入任务恢复
+
+扫描结果会写到：
+
+```text
+data/admin/imports/<scan_id>.json
+```
+
+管理端重启后可以在“导入”页恢复未完成扫描。已完整提交的扫描会自动删除。
 
 ## 导入后刷新
 
@@ -91,6 +105,19 @@ img/thumbs/640/<id>.webp     大图缩略图
 cd frontend
 pnpm sync-data
 ```
+
+## 生成生产发布包
+
+完整发布包可以先生成到本地，不直接接触服务器：
+
+```bash
+python3 tools/prepare_release.py \
+  --ids 1182,1185-1187 \
+  --with-frontend \
+  --output release/20261104
+```
+
+发布包包含 API 代码、catalog/memes/state、manifest、选中图片和可选前端构建。确认 `release/release.json` 后再按部署文档上传。API 代码必须先于含 `draft` 的 catalog 上线。
 
 ## 投稿（后端基础）
 

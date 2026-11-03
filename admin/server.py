@@ -9,6 +9,7 @@ build.  The public API remains read-only.
 
 from __future__ import annotations
 
+import json
 import os
 import re
 import shutil
@@ -48,6 +49,107 @@ def cfg() -> Config:
     return ingest.get_config(os.getenv("MEME_DATA_DIR") or ROOT)
 
 
+def _jobs_dir() -> Path:
+    path = cfg().root / "data" / "admin" / "imports"
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+
+def _job_file(scan_id: str) -> Path:
+    return _jobs_dir() / f"{scan_id}.json"
+
+
+def _save_job(scan: ingest.Scan) -> None:
+    payload = {
+        "scan_id": scan.scan_id,
+        "source_dir": str(scan.source_dir) if scan.source_dir else None,
+        "created_at": scan.created_at,
+        "items": [
+            {
+                "token": item.token,
+                "source_path": str(item.source_path),
+                "relative_path": item.relative_path,
+                "display_name": item.display_name,
+                "status": item.status,
+                "reason": item.reason,
+                "duplicate_id": item.duplicate_id,
+                "image_format": item.image_format,
+                "extension": item.extension,
+                "width": item.width,
+                "height": item.height,
+                "frames": item.frames,
+                "bytes": item.bytes,
+                "sha256": item.sha256,
+                "dhash": item.dhash,
+                "warnings": item.warnings,
+            }
+            for item in scan.items
+        ],
+    }
+    target = _job_file(scan.scan_id)
+    target.write_text(__import__("json").dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
+def _load_job(scan_id: str) -> ingest.Scan | None:
+    path = _job_file(scan_id)
+    if not path.is_file():
+        return None
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        items = [
+            ingest.ScanItem(
+                token=item["token"],
+                source_path=Path(item["source_path"]),
+                relative_path=item.get("relative_path", ""),
+                display_name=item.get("display_name", ""),
+                status=item.get("status", "invalid"),
+                reason=item.get("reason", ""),
+                duplicate_id=item.get("duplicate_id"),
+                image_format=item.get("image_format"),
+                extension=item.get("extension"),
+                width=item.get("width"),
+                height=item.get("height"),
+                frames=item.get("frames", 1),
+                bytes=item.get("bytes", 0),
+                sha256=item.get("sha256", ""),
+                dhash=item.get("dhash"),
+                warnings=item.get("warnings", []),
+            )
+            for item in data.get("items", [])
+        ]
+        source_dir = Path(data["source_dir"]) if data.get("source_dir") else None
+        return ingest.Scan(
+            scan_id=data["scan_id"],
+            source_dir=source_dir,
+            items=items,
+            created_at=data.get("created_at", ""),
+        )
+    except (OSError, KeyError, TypeError, ValueError, json.JSONDecodeError):
+        return None
+
+
+def _load_jobs() -> None:
+    for path in sorted(_jobs_dir().glob("*.json"), key=lambda item: item.stat().st_mtime, reverse=True):
+        scan = _load_job(path.stem)
+        if scan is not None:
+            SCANS[scan.scan_id] = scan
+    _trim_scans()
+
+
+def _delete_job(scan_id: str) -> None:
+    _job_file(scan_id).unlink(missing_ok=True)
+    SCANS.pop(scan_id, None)
+
+
+def _trim_scans() -> None:
+    jobs = sorted(_jobs_dir().glob("*.json"), key=lambda item: item.stat().st_mtime, reverse=True)
+    for old in jobs[20:]:
+        old.unlink(missing_ok=True)
+    while len(SCANS) > 20:
+        oldest = next(iter(SCANS))
+        SCANS.pop(oldest, None)
+
+
 class LocalOnlyMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):  # type: ignore[no-untyped-def]
         host = request.client.host if request.client else ""
@@ -57,6 +159,11 @@ class LocalOnlyMiddleware(BaseHTTPMiddleware):
 
 
 app.add_middleware(LocalOnlyMiddleware)
+
+
+@app.on_event("startup")
+def _startup() -> None:
+    _load_jobs()
 
 
 class ImageEdit(BaseModel):
@@ -176,6 +283,7 @@ def scan(body: ScanRequest) -> dict[str, Any]:
     except ValidationError as exc:
         raise HTTPException(400, str(exc)) from exc
     SCANS[result.scan_id] = result
+    _save_job(result)
     _trim_scans()
     return {
         "scan_id": result.scan_id,
@@ -202,6 +310,7 @@ async def upload(request: Request, filename: str = Query(..., max_length=180)) -
     path.write_bytes(body)
     result = ingest.scan_single(path, root=cfg().root)
     SCANS[result.scan_id] = result
+    _save_job(result)
     _trim_scans()
     return {
         "scan_id": result.scan_id,
@@ -222,6 +331,36 @@ def scan_preview(scan_id: str, token: str) -> FileResponse:
     return FileResponse(item.source_path)
 
 
+@app.get("/api/admin/scans")
+def list_scans() -> dict[str, Any]:
+    items = []
+    for scan in sorted(SCANS.values(), key=lambda item: item.created_at, reverse=True):
+        ready = sum(1 for entry in scan.items if entry.status == "ready")
+        items.append(
+            {
+                "scan_id": scan.scan_id,
+                "created_at": scan.created_at,
+                "source_dir": str(scan.source_dir or ""),
+                "count": len(scan.items),
+                "ready": ready,
+            }
+        )
+    return {"items": items}
+
+
+@app.get("/api/admin/scans/{scan_id}")
+def get_scan(scan_id: str) -> dict[str, Any]:
+    scan = SCANS.get(scan_id)
+    if scan is None:
+        raise HTTPException(404, "scan not found")
+    return {
+        "scan_id": scan.scan_id,
+        "items": [item.public(scan.scan_id) for item in scan.items],
+        "count": len(scan.items),
+        "ready": sum(1 for item in scan.items if item.status == "ready"),
+    }
+
+
 @app.post("/api/admin/scans/{scan_id}/commit")
 def commit(scan_id: str, body: CommitRequest) -> dict[str, Any]:
     scan = SCANS.get(scan_id)
@@ -235,10 +374,10 @@ def commit(scan_id: str, body: CommitRequest) -> dict[str, Any]:
         )
     except ValidationError as exc:
         raise HTTPException(400, str(exc)) from exc
-    if result["imported"]:
+    if result["imported"] and not result["failed"]:
         # The public API can reload this catalog automatically when started
         # with MEME_DEV_RELOAD=1.  Don't fail the import if that process is down.
-        SCANS.pop(scan_id, None)
+        _delete_job(scan_id)
     return result
 
 
@@ -331,7 +470,3 @@ def reject_submission(submission_id: str, body: SubmissionReject) -> dict[str, A
         raise HTTPException(400, str(exc)) from exc
 
 
-def _trim_scans() -> None:
-    while len(SCANS) > 20:
-        oldest = next(iter(SCANS))
-        SCANS.pop(oldest, None)

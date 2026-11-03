@@ -184,3 +184,8 @@ select:focus, input:focus { border-color: var(--ink); }
 .submission-empty { grid-column: 1 / -1; text-align: center; padding: 45px 20px; border: 1px solid var(--line); border-radius: 14px; background: var(--card); color: var(--muted); font-size: 12px; }
 @media (max-width: 1100px) { .submission-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 720px) { .submission-list { grid-template-columns: 1fr; } .submission-note { flex-basis: 100%; margin-left: 0; } }
+
+.saved-scans { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 0 0 14px; padding: 10px 12px; border: 1px dashed #cfc7a7; border-radius: 10px; background: #fff9db; font-size: 10px; color: var(--muted); }
+.saved-scans b { margin-right: 3px; color: var(--ink); }
+.saved-scan { border: 1px solid var(--line); border-radius: 7px; background: var(--card); padding: 6px 8px; font-size: 10px; color: var(--ink); }
+.saved-scan:hover { border-color: var(--ink); }

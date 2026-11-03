@@ -4,7 +4,7 @@
     "title": "Nailong Meme Library API",
     "summary": "Read-only meme library API over HTTP on the production IP.",
     "description": "Read-only API for the Nailong / Naiwa meme library.\n\nProduction base URL: http://47.118.50.113/api\n\n- Image endpoints return JPG/GIF bytes only, never JSON.\n- Use /search/meta and /random/meta when metadata is required.\n- The public gallery exposes 1,164 entries. Seven entries are hidden by the review filter in data/review/sensitive.json.\n- Entries without a 奶蛙 tag are treated as 奶龙 at runtime.\n- No authentication is required. The production Nginx edge applies 20 requests/second per client IP with burst 40.\n- The API is HTTP-only while the custom domain is pending ICP filing; use the IP base URL above.",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "license": {
       "name": "MIT",
       "url": "https://github.com/fall-star/nailongmeme/blob/main/LICENSE"

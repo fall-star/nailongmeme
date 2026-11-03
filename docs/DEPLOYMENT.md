@@ -96,3 +96,25 @@ Do not deploy with a command that deletes `/home/nailong`; use a separate fronte
 ## HTTPS
 
 Terminate TLS at Nginx or a reverse proxy. Certificates are not included. Complete any required domain/ICP process before enabling public TLS.
+
+## Incremental data releases
+
+Build a local release bundle before touching the server:
+
+```bash
+python3 tools/prepare_release.py \
+  --ids 1182,1185-1187 \
+  --with-frontend \
+  --output release/20261104
+```
+
+Deploy order matters when the catalog contains drafts:
+
+1. Deploy `production/api/main.py` (API 1.2 filters `draft` and `blocked`).
+2. Upload new `img/` files and `data/manifest.json`.
+3. Upload `data/catalog.json`, `memes.json`, `data/state.json`.
+4. Restart the API.
+5. Atomically replace the frontend root with the full `frontend/dist`.
+6. Verify a published image and confirm a draft ID returns 404.
+
+Do not use `rsync --delete` against `/home/nailong/api`.

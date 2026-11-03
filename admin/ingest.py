@@ -21,8 +21,10 @@ from meme_pipeline import SCHEMA_VERSION
 from meme_pipeline.catalog import (
     compact_catalog_entry,
     load_catalog,
+    load_manifest,
     load_state,
     save_catalog,
+    save_manifest,
     save_state,
     validate_catalog,
 )
@@ -65,6 +67,7 @@ class ScanItem:
     frames: int = 1
     bytes: int = 0
     sha256: str = ""
+    dhash: str | None = None
     warnings: list[str] = field(default_factory=list)
 
     def public(self, scan_id: str) -> dict[str, Any]:
@@ -145,6 +148,7 @@ def scan_paths(paths: Iterable[Path], *, root: Path | None = None, catalog: list
             item.height = meta.height
             item.frames = meta.frames
             item.bytes = path.stat().st_size
+            item.dhash = meta.dhash
             item.warnings = list(meta.warnings)
             digest = _hash(path)
             item.sha256 = digest
@@ -225,6 +229,93 @@ def _thumbnail(source: Path, output_dir: Path, image_id: str) -> dict[str, Any]:
             thumb.save(target, **kwargs)
             result[str(size)] = target
     return result
+
+
+def _manifest_entry(item: ScanItem, entry: dict[str, Any], source_type: str, submission_id: str | None) -> dict[str, Any]:
+    now = iso_local()
+    return {
+        "source": source_type,
+        "source_id": submission_id or f"manual-{entry['id']}",
+        "name": entry["name"],
+        "description": "本地管理端导入" if source_type == "manual" else "投稿审核导入",
+        "category": "手动补充" if source_type == "manual" else "用户投稿",
+        "kind": "GIF 动图" if item.frames > 1 else "静态图片",
+        "source_label": "本地管理端" if source_type == "manual" else "公开投稿",
+        "source_tags": [],
+        "image_url": None,
+        "page_url": "",
+        "final_url": None,
+        "content_type": f"image/{item.image_format}",
+        "format": item.image_format,
+        "width": item.width,
+        "height": item.height,
+        "frames": item.frames,
+        "bytes": item.bytes,
+        "sha256": item.sha256,
+        "dhash": item.dhash,
+        "downloaded_at": now,
+        "added_at": now,
+        "aliases": [],
+    }
+
+
+def _update_thumb_manifest(cfg: Config, entries: list[dict[str, Any]]) -> None:
+    path = cfg.root / "img" / "thumbs" / "manifest.json"
+    if path.is_file():
+        try:
+            manifest = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            manifest = {}
+    else:
+        manifest = {}
+    if not isinstance(manifest, dict):
+        manifest = {}
+    items = manifest.get("entries")
+    if not isinstance(items, dict):
+        items = {}
+    for entry in entries:
+        image_id = str(entry["id"])
+        converted = None
+        for suffix in (".gif", ".jpg"):
+            candidate = cfg.root / "img" / "converted" / f"{image_id}{suffix}"
+            if candidate.is_file():
+                converted = candidate
+                break
+        if converted is None:
+            continue
+        thumbs: dict[str, Any] = {}
+        for size in THUMB_SIZES:
+            target = cfg.root / "img" / "thumbs" / str(size) / f"{image_id}.webp"
+            if not target.is_file():
+                continue
+            with Image.open(target) as thumb:
+                width, height = thumb.size
+            thumbs[str(size)] = {
+                "path": target.relative_to(cfg.root).as_posix(),
+                "width": width,
+                "height": height,
+                "bytes": target.stat().st_size,
+            }
+        items[image_id] = {
+            "source": converted.relative_to(cfg.root).as_posix(),
+            "source_format": entry.get("format"),
+            "width": entry.get("width"),
+            "height": entry.get("height"),
+            "thumbs": thumbs,
+        }
+    ordered = {key: items[key] for key in sorted(items, key=lambda value: int(value))}
+    payload = {
+        "schema_version": 1,
+        "generated_at": iso_local(),
+        "source": "img/converted",
+        "sizes": list(THUMB_SIZES),
+        "count": len(ordered),
+        "entries": ordered,
+    }
+    # Preserve failures from the full rebuild tool when present.
+    if isinstance(manifest.get("failures"), list):
+        payload["failures"] = manifest["failures"]
+    atomic_write_json(path, payload)
 
 
 def _write_audit(cfg: Config, event: dict[str, Any]) -> None:
@@ -385,6 +476,18 @@ def commit_scan(
                 }
             )
             save_state(cfg, state)
+            manifest = load_manifest(cfg)
+            for entry in catalog:
+                if str(entry["id"]) not in {item["id"] for item in imported}:
+                    continue
+                item = next((candidate for candidate in scan.items if candidate.token in {
+                    selection.get("token") for selection in selections
+                } and candidate.sha256 == entry.get("sha256")), None)
+                if item is None:
+                    continue
+                manifest.setdefault("items", {})[str(entry["id"])] = _manifest_entry(item, entry, source_type, submission_id)
+            save_manifest(cfg, manifest, run_id)
+            _update_thumb_manifest(cfg, [entry for entry in catalog if str(entry["id"]) in {item["id"] for item in imported}])
             _write_audit(
                 cfg,
                 {

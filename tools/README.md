@@ -14,3 +14,14 @@
 - `apply_vision_tags.py` 会写完整目录并同步投递索引；运行前先备份，且不要用它覆盖新手动 tag。
 - `build_search_aliases.py` 会覆盖 `data/search/aliases.json`；该文件需要人工审查，审查后不要盲跑生成器。
 - `build_pinyin_map.py` 是可选工具；运行时搜索只读静态 `pinyin.json`，不依赖 pypinyin。
+
+## Production release bundle
+
+```bash
+python3 tools/prepare_release.py \
+  --ids 1182,1185-1187 \
+  --with-frontend \
+  --output release/20261104
+```
+
+This creates a local bundle with API code, catalog metadata, selected image files and optionally `frontend/dist`. It never contacts the server. Review `release/release.json` before copying it to production. The API code must be deployed before a catalog containing `draft` entries.

@@ -310,7 +310,7 @@
     $$('.tab').forEach((tab) => tab.classList.toggle('active', tab.dataset.view === name));
     $$('.view').forEach((view) => view.classList.toggle('active', view.id === `view-${name}`));
     if (name === 'library') { loadStats(); loadImages(); }
-    if (name === 'import') { loadStats(); loadTags(); }
+    if (name === 'import') { loadStats(); loadTags(); loadSavedScans(); }
     if (name === 'submissions') { loadSubmissions(); }
   }
 
@@ -337,6 +337,19 @@
     }).join('');
     $('#commit-result').hidden = true;
     panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  async function loadSavedScans() {
+    const box = $('#saved-scans');
+    try {
+      const data = await api('/api/admin/scans');
+      if (!data.items.length) { box.hidden = true; box.innerHTML = ''; return; }
+      box.hidden = false;
+      box.innerHTML = '<b>未完成的导入</b>' + data.items.map((scan) => `
+        <button class="saved-scan" data-scan="${escapeHtml(scan.scan_id)}">
+          ${escapeHtml(scan.source_dir || '单张上传')} · 可导入 ${scan.ready}/${scan.count}
+        </button>`).join('');
+    } catch (_) { box.hidden = true; }
   }
 
   async function uploadSingle(file) {
@@ -477,6 +490,16 @@
     $('#add-tag').addEventListener('click', addCustomTag);
     $('#custom-tag').addEventListener('keydown', (event) => {
       if (event.key === 'Enter') { event.preventDefault(); addCustomTag(); }
+    });
+    $('#saved-scans').addEventListener('click', async (event) => {
+      const button = event.target.closest('[data-scan]');
+      if (!button) return;
+      try {
+        const data = await api(`/api/admin/scans/${button.dataset.scan}`);
+        showScan(data);
+      } catch (error) {
+        toast(error.message, true);
+      }
     });
     $('#single-file').addEventListener('change', (event) => uploadSingle(event.target.files[0]));
     $('#scan-folder').addEventListener('click', scanFolder);

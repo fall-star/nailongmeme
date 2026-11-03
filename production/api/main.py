@@ -32,7 +32,7 @@ from meme_pipeline.search import SearchEngine
 
 LOGGER = logging.getLogger("meme_api")
 ID_RE = re.compile(r"^[0-9]{1,5}$")
-VERSION = "1.1.0"
+VERSION = "1.2.0"
 
 
 def _env_int(name: str, default: int) -> int:

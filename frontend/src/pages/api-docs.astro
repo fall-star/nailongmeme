@@ -4,7 +4,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 <BaseLayout title="API 文档 · 奶龙表情库" description="奶龙表情库公开 API：搜索、随机、图库、缩略图、原图下载和元数据接口。" bodyClass="api-docs-page">
   <main class="api-docs shell">
     <section class="docs-hero">
-      <div class="eyebrow"><span class="dot"></span> PUBLIC API · V1.1</div>
+      <div class="eyebrow"><span class="dot"></span> PUBLIC API · V1.2</div>
       <h1>表情包 API<span class="title-dot">.</span></h1>
       <p class="docs-lead">只读、公开、无需认证。图片接口直接返回 JPG/GIF；需要名称、标签和缩略图时使用对应的 JSON 接口。</p>
       <div class="docs-base">
@@ -222,7 +222,7 @@ curl "http://47.118.50.113/api/memes.public.json"</code></pre>
 
 &#123;
   "status": "ok",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "catalog_entries": 1171,
   "images": 1171,
   "public_images": 1164,

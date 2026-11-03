@@ -105,7 +105,7 @@ Entries without `奶蛙` receive a derived `奶龙` tag at runtime.
 ```json
 {
   "status": "ok",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "catalog_entries": 1171,
   "images": 1171,
   "public_images": 1164,
