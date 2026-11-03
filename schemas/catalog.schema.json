@@ -14,7 +14,6 @@
       "format",
       "sha256",
       "source",
-      "source_url",
       "added_at"
     ],
     "properties": {
@@ -30,7 +29,10 @@
       },
       "tag": {
         "type": "array",
-        "items": { "type": "string", "minLength": 1 },
+        "items": {
+          "type": "string",
+          "minLength": 1
+        },
         "uniqueItems": true,
         "description": "User-maintained tags. Empty on import."
       },
@@ -40,11 +42,40 @@
       },
       "format": {
         "type": "string",
-        "enum": ["jpeg", "png", "gif", "webp", "avif", "heif", "bmp", "tiff", "svg", "ico"]
+        "enum": [
+          "jpeg",
+          "png",
+          "gif",
+          "webp",
+          "avif",
+          "heif",
+          "bmp",
+          "tiff",
+          "svg",
+          "ico"
+        ]
       },
-      "width": { "type": ["integer", "null"], "minimum": 1 },
-      "height": { "type": ["integer", "null"], "minimum": 1 },
-      "bytes": { "type": ["integer", "null"], "minimum": 1 },
+      "width": {
+        "type": [
+          "integer",
+          "null"
+        ],
+        "minimum": 1
+      },
+      "height": {
+        "type": [
+          "integer",
+          "null"
+        ],
+        "minimum": 1
+      },
+      "bytes": {
+        "type": [
+          "integer",
+          "null"
+        ],
+        "minimum": 1
+      },
       "sha256": {
         "type": "string",
         "pattern": "^[0-9a-f]{64}$"
@@ -59,11 +90,18 @@
         "description": "Stable id assigned by the source site; used for idempotent re-crawls."
       },
       "source_url": {
-        "type": "string",
-        "pattern": "^https?://"
+        "type": [
+          "string",
+          "null"
+        ],
+        "pattern": "^https?://",
+        "description": "Required for crawl entries; optional/null for manual and submission entries."
       },
       "source_page": {
-        "type": "string",
+        "type": [
+          "string",
+          "null"
+        ],
         "pattern": "^https?://"
       },
       "added_at": {
@@ -73,6 +111,32 @@
       "pending": {
         "type": "boolean",
         "description": "True when the catalog entry exists but its image has not been supplied yet. verify skips file checks for pending entries."
+      },
+      "source_type": {
+        "type": "string",
+        "enum": [
+          "crawl",
+          "manual",
+          "submission"
+        ],
+        "description": "How the image entered the library. Existing entries without this field are inferred as manual (source=manual) or crawl."
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "published",
+          "draft",
+          "blocked"
+        ],
+        "default": "published",
+        "description": "Draft and blocked entries are excluded from public routes."
+      },
+      "submission_id": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Public submission identifier for submitted images."
       }
     },
     "additionalProperties": true

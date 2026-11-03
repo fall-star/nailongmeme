@@ -51,6 +51,7 @@ class Settings:
     memes_cache_seconds: int
     default_min_score: float
     default_window: float
+    dev_reload: bool
 
 
 def _load_settings() -> Settings:
@@ -78,6 +79,7 @@ def _load_settings() -> Settings:
         memes_cache_seconds=max(0, _env_int("MEME_MEMES_CACHE_SECONDS", 300)),
         default_min_score=min(1.0, max(0.0, min_score)),
         default_window=max(0.0, window),
+        dev_reload=os.getenv("MEME_DEV_RELOAD", "0") == "1",
     )
 
 
@@ -113,6 +115,8 @@ class Library:
         for entry in catalog:
             if entry.get("pending") is True:
                 continue
+            if str(entry.get("status", "published")) != "published":
+                continue
             path = self.image_path(str(entry["id"]))
             if path is not None:
                 self.image_map[str(entry["id"])] = path
@@ -131,6 +135,8 @@ class Library:
         for entry in catalog:
             image_id = str(entry.get("id", ""))
             if any(str(tag) in self.blocked_tags for tag in entry.get("tag", [])):
+                self.blocked_ids.add(image_id)
+            if str(entry.get("status", "published")) == "blocked":
                 self.blocked_ids.add(image_id)
         self.public_entries = [
             entry
@@ -258,6 +264,10 @@ class HealthResponse(BaseModel):
 async def lifespan(app: FastAPI):
     LOGGER.info("loading meme library from %s", SETTINGS.data_dir)
     app.state.library = Library(SETTINGS.data_dir)
+    try:
+        app.state.library_mtime = app.state.library.catalog_path.stat().st_mtime_ns
+    except OSError:
+        app.state.library_mtime = None
     LOGGER.info(
         "library ready: %s entries, %s images",
         len(app.state.library.catalog),
@@ -300,6 +310,20 @@ def _get_library(request: Request) -> Library:
     library = getattr(request.app.state, "library", None)
     if library is None:
         raise HTTPException(status_code=503, detail="library not ready")
+    if SETTINGS.dev_reload:
+        try:
+            mtime = library.catalog_path.stat().st_mtime_ns
+        except OSError:
+            mtime = None
+        if mtime is not None and mtime != getattr(request.app.state, "library_mtime", None):
+            try:
+                library = Library(SETTINGS.data_dir)
+            except Exception as exc:  # noqa: BLE001 - keep the old in-memory copy
+                LOGGER.exception("dev reload failed: %s", exc)
+                raise HTTPException(status_code=503, detail="dev reload failed") from exc
+            request.app.state.library = library
+            request.app.state.library_mtime = mtime
+            LOGGER.info("dev reload: %s entries", len(library.catalog))
     return library
 
 
@@ -489,7 +513,11 @@ def gallery_item(request: Request, image_id: str) -> GalleryItem:
 )
 def thumb(request: Request, image_id: str, size: int) -> FileResponse:
     library = _get_library(request)
-    if library.is_blocked(image_id) or size not in (320, 640):
+    if (
+        image_id not in library.image_map
+        or library.is_blocked(image_id)
+        or size not in (320, 640)
+    ):
         raise HTTPException(status_code=404, detail="thumbnail not found")
     path = library.thumb_path(image_id, size)
     if path is None:
@@ -672,7 +700,7 @@ def image(
     download: bool = Query(False, description="Send as attachment instead of inline"),
 ) -> FileResponse:
     library = _get_library(request)
-    if library.is_blocked(image_id):
+    if image_id not in library.image_map or library.is_blocked(image_id):
         raise HTTPException(status_code=404, detail="image not found")
     path = library.image_path(image_id)
     if path is None:
@@ -693,6 +721,7 @@ def memes_json(request: Request) -> JSONResponse:
     payload = [
         {"id": str(entry["id"]), "name": entry.get("name", ""), "tag": list(entry.get("tag", []))}
         for entry in library.catalog
+        if str(entry.get("status", "published")) == "published"
     ]
     return JSONResponse(
         content=payload,

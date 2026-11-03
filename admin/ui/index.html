@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>本地管理 · 奶龙表情库</title>
+  <link rel="stylesheet" href="/admin/static/style.css">
+</head>
+<body>
+  <header class="top">
+    <div class="top-inner">
+      <a class="brand" href="/admin">
+        <span class="mark">奶</span>
+        <span><b>奶龙表情库</b><small>LOCAL ADMIN</small></span>
+      </a>
+      <div class="local-badge"><i></i> LOCAL ONLY · 127.0.0.1</div>
+      <nav class="tabs" aria-label="管理功能">
+        <button class="tab active" data-view="library">素材库</button>
+        <button class="tab" data-view="import">导入</button>
+        <button class="tab" data-view="submissions">投稿</button>
+      </nav>
+      <a class="public-link" href="http://127.0.0.1:4321" target="_blank" rel="noopener">打开前台 ↗</a>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section id="view-library" class="view active">
+      <div class="page-head">
+        <div>
+          <div class="eyebrow">LIBRARY</div>
+          <h1>素材库</h1>
+          <p>点任意图片，看着大图改名称和标签。草稿不会进入公开图库。</p>
+        </div>
+        <button class="btn primary" id="jump-import">＋ 导入图片</button>
+      </div>
+
+      <div class="stats" id="stats"></div>
+
+      <div class="toolbar">
+        <label class="search"><span>⌕</span><input id="filter-q" placeholder="搜索 ID / 名称 / 标签"></label>
+        <select id="filter-status">
+          <option value="">全部状态</option>
+          <option value="draft">草稿</option>
+          <option value="published">已发布</option>
+          <option value="blocked">已屏蔽</option>
+        </select>
+        <select id="filter-tag"><option value="">全部标签</option></select>
+        <select id="filter-missing">
+          <option value="">全部图片</option>
+          <option value="tag">只看无标签</option>
+        </select>
+        <button class="btn" id="reload-library">刷新</button>
+      </div>
+      <div class="result-line"><span id="result-count">—</span><span id="api-state" class="api-state">API 正常</span></div>
+      <div class="image-grid" id="image-grid"></div>
+      <div class="load-more"><button class="btn" id="load-more" hidden>加载更多</button></div>
+    </section>
+
+    <section id="view-import" class="view">
+      <div class="page-head">
+        <div>
+          <div class="eyebrow">INGEST</div>
+          <h1>导入</h1>
+          <p>支持单张上传和扫描整个本地文件夹。导入后默认保存为草稿，去素材库补名称和标签。</p>
+        </div>
+      </div>
+
+      <div class="import-grid">
+        <div class="panel">
+          <h2>单张图片</h2>
+          <p>选择一张图片，先预览，再决定名称和标签。支持 JPG、PNG、GIF、WebP 等。</p>
+          <label class="file-drop" for="single-file">
+            <input type="file" id="single-file" accept="image/*">
+            <span class="file-icon">＋</span>
+            <b>选择一张图片</b>
+            <small>最大 50 MB</small>
+          </label>
+        </div>
+        <div class="panel">
+          <h2>整个文件夹</h2>
+          <p>输入本机文件夹绝对路径。会递归扫描子目录，重复和损坏文件会单独标记。</p>
+          <label class="field-label" for="folder-path">文件夹路径</label>
+          <div class="inline-form">
+            <input id="folder-path" placeholder="/Users/fallstar/Pictures/new-memes">
+            <button class="btn primary" id="scan-folder">扫描</button>
+          </div>
+          <label class="check"><input type="checkbox" id="recursive" checked> 包含子文件夹</label>
+        </div>
+      </div>
+
+      <section id="scan-panel" class="panel scan-panel" hidden>
+        <div class="scan-head">
+          <div><h2>扫描结果</h2><p id="scan-summary"></p></div>
+          <div class="scan-actions">
+            <label class="check"><input type="checkbox" id="select-ready" checked> 全选可导入</label>
+            <button class="btn primary" id="commit-scan">导入选中项</button>
+            <button class="btn" id="sync-data" title="生成 guide">同步前台数据</button>
+          </div>
+        </div>
+        <div class="common-tags">
+          <label>批量加标签</label>
+          <input id="common-tags" placeholder="用逗号分隔，例如：奶蛙,大笑">
+          <button class="btn" id="apply-common-tags">应用</button>
+        </div>
+        <div class="table-wrap">
+          <table class="scan-table">
+            <thead><tr><th></th><th>预览</th><th>文件</th><th>名称</th><th>标签</th><th>状态</th></tr></thead>
+            <tbody id="scan-body"></tbody>
+          </table>
+        </div>
+        <div id="commit-result" class="commit-result" hidden></div>
+      </section>
+    </section>
+
+    <section id="view-submissions" class="view">
+      <div class="page-head">
+        <div>
+          <div class="eyebrow">SUBMISSIONS</div>
+          <h1>投稿</h1>
+          <p>公开投稿入口的后端会在下一阶段接入；投稿图片先进入隔离目录，管理员审核后才分配 ID 并公开。</p>
+        </div>
+      </div>
+      <div class="toolbar submission-toolbar">
+        <select id="submission-status">
+          <option value="">全部投稿</option>
+          <option value="pending_review">待审核</option>
+          <option value="duplicate">重复</option>
+          <option value="approved">已通过</option>
+          <option value="rejected">已拒绝</option>
+        </select>
+        <button class="btn" id="reload-submissions">刷新</button>
+        <span class="submission-note">投稿原图位于隔离目录，审核通过前不会公开，也不会占用 catalog ID。</span>
+      </div>
+      <div id="submission-list" class="submission-list"></div>
+    </section>
+  </main>
+
+  <dialog id="editor" class="editor">
+    <div class="editor-top">
+      <div><span class="editor-id" id="editor-id">#—</span><span id="editor-file" class="editor-file"></span></div>
+      <button class="icon-btn" id="close-editor" aria-label="关闭">×</button>
+    </div>
+    <div class="editor-layout">
+      <div class="editor-preview">
+        <img id="editor-image" alt="">
+        <div class="preview-meta" id="editor-meta"></div>
+      </div>
+      <div class="editor-fields">
+        <label class="field-label" for="editor-name">名称</label>
+        <input id="editor-name" maxlength="120" placeholder="给这张图起个名字">
+        <label class="field-label">状态</label>
+        <select id="editor-status">
+          <option value="draft">草稿（不公开）</option>
+          <option value="published">已发布</option>
+          <option value="blocked">屏蔽</option>
+        </select>
+        <label class="field-label">已选标签 <span id="tag-count"></span></label>
+        <div class="selected-tags" id="selected-tags"></div>
+        <label class="field-label" for="custom-tag">添加标签</label>
+        <div class="inline-form">
+          <input id="custom-tag" placeholder="输入后按 Enter">
+          <button class="btn" id="add-tag">添加</button>
+        </div>
+        <div class="tag-groups" id="tag-groups"></div>
+      </div>
+    </div>
+    <div class="editor-foot">
+      <div class="editor-nav">
+        <button class="btn" id="prev-image">← 上一张</button>
+        <button class="btn" id="next-image">下一张 →</button>
+      </div>
+      <div class="editor-actions">
+        <span id="save-state" class="save-state"></span>
+        <button class="btn primary" id="save-image">保存</button>
+      </div>
+    </div>
+  </dialog>
+
+  <div id="toast" class="toast" role="status"></div>
+  <script src="/admin/static/app.js"></script>
+</body>
+</html>

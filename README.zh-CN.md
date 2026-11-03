@@ -26,6 +26,7 @@ schemas/                JSON Schema
 tests/                  单元测试（使用临时 fixture，不包含真实图片）
 data/                   目录、索引和搜索表（仅元数据）
 frontend/               Astro + React islands 前端
+admin/                  只在本地运行的管理页面和管理 API
 docs/                   API 和部署文档
 run.sh                  项目命令入口
 convert_formats.py      JPG/GIF 转换工具
@@ -159,6 +160,22 @@ OpenAPI 3.1：
 `data/catalog.json` 中的图片名称、标签和来源地址仅用于开发。图片文件、桌宠精灵表和截图的权利归各自所有者，不属于 MIT 授权的代码范围。
 
 MIT 许可证只适用于本仓库中的代码，不适用于第三方图片、角色形象或视觉素材。
+
+## 本地管理端（仅开发）
+
+管理端是独立的本机应用，不进入生产前端构建，也不要在生产服务器运行。
+
+```bash
+# 公开 API，开发时开启自动重载
+MEME_DATA_DIR="$PWD" MEME_DEV_RELOAD=1 \
+  .venv/bin/python -m uvicorn production.api.main:app --host 127.0.0.1 --port 8000
+
+# 本地管理页面 + API
+MEME_DATA_DIR="$PWD" ./run.sh admin
+# http://127.0.0.1:8001/admin
+```
+
+支持单张上传、扫描本地文件夹、可视化修改名称/标签（含旧图）、草稿/发布状态、不复用 ID、缩略图，以及投稿隔离队列。详见 [admin/README.md](admin/README.md)。
 
 ## 部署
 

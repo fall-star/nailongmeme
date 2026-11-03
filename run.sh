@@ -37,6 +37,10 @@ exec_with_python() {
     shift
     exec "$python" "$ROOT/tools/build_thumbnails.py" "$@"
   fi
+  if [[ "${1:-}" == "admin" ]]; then
+    shift
+    exec "$python" -m uvicorn admin.server:app --host 127.0.0.1 --port 8001 "$@"
+  fi
   exec "$python" -m meme_pipeline "$@"
 }
 

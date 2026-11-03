@@ -29,9 +29,11 @@ REQUIRED_FIELDS = (
     "format",
     "sha256",
     "source",
-    "source_url",
     "added_at",
 )
+
+SOURCE_TYPES = {"crawl", "manual", "submission"}
+ENTRY_STATUSES = {"published", "draft", "blocked"}
 
 _HEX = set("0123456789abcdef")
 
@@ -100,9 +102,38 @@ def validate_entry_shape(entry: Any, cfg: Config, *, where: str = "entry") -> di
     if not isinstance(source, str) or not source.strip():
         raise ValidationError(f"{where}: source must be a non-empty string")
 
-    source_url = entry["source_url"]
-    if not isinstance(source_url, str) or not source_url.startswith(("http://", "https://")):
-        raise ValidationError(f"{where}: source_url must be an http(s) URL")
+    source_type = entry.get("source_type")
+    if source_type is None:
+        # Existing catalog entries predate source_type.  A manual source is
+        # local; everything else was crawled from a website.
+        source_type = "manual" if source.strip() == "manual" else "crawl"
+    if not isinstance(source_type, str) or source_type not in SOURCE_TYPES:
+        raise ValidationError(
+            f"{where}: source_type must be one of {sorted(SOURCE_TYPES)}, got {source_type!r}"
+        )
+
+    source_url = entry.get("source_url")
+    if source_url is not None:
+        if not isinstance(source_url, str) or not source_url.startswith(("http://", "https://")):
+            raise ValidationError(f"{where}: source_url must be an http(s) URL or null")
+    elif source_type == "crawl":
+        raise ValidationError(f"{where}: crawl entries require source_url")
+
+    source_page = entry.get("source_page")
+    if source_page is not None and (
+        not isinstance(source_page, str) or not source_page.startswith(("http://", "https://"))
+    ):
+        raise ValidationError(f"{where}: source_page must be an http(s) URL or null")
+
+    status = entry.get("status", "published")
+    if not isinstance(status, str) or status not in ENTRY_STATUSES:
+        raise ValidationError(
+            f"{where}: status must be one of {sorted(ENTRY_STATUSES)}, got {status!r}"
+        )
+
+    submission_id = entry.get("submission_id")
+    if submission_id is not None and not isinstance(submission_id, str):
+        raise ValidationError(f"{where}: submission_id must be a string or null")
 
     added_at = entry["added_at"]
     if not isinstance(added_at, str):
@@ -366,9 +397,12 @@ def compact_catalog_entry(entry: dict[str, Any]) -> dict[str, Any]:
         "bytes",
         "sha256",
         "source",
+        "source_type",
         "source_id",
         "source_url",
         "source_page",
+        "submission_id",
+        "status",
         "added_at",
     ]
     result = {key: entry[key] for key in order if key in entry}

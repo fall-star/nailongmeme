@@ -26,6 +26,7 @@ schemas/                JSON schemas
 tests/                  unittest suite (fixtures, no bundled images)
 data/                   catalog, memes index and search tables (metadata only)
 frontend/               Astro + React islands frontend
+admin/                  local-only management UI and admin API
 docs/                   public API and deployment notes
 run.sh                  project CLI wrapper
 convert_formats.py      JPG/GIF conversion tool
@@ -151,6 +152,22 @@ Any catalog entry without a `奶蛙` tag is treated as `奶龙` at runtime. The 
 The image names, tags and source URLs in `data/catalog.json` are included for development. Image files, the mascot sprite and screenshots remain the property of their respective owners and are not part of the MIT-licensed source distribution.
 
 The MIT license applies to the code in this repository, not to third-party images or character IP.
+
+## Local admin (development only)
+
+The admin tool is a separate localhost app. It is not part of the production frontend and must not be run on the public server.
+
+```bash
+# API with dev reload
+MEME_DATA_DIR="$PWD" MEME_DEV_RELOAD=1 \
+  uv run --extra api uvicorn production.api.main:app --host 127.0.0.1 --port 8000
+
+# Local admin UI and API
+MEME_DATA_DIR="$PWD" ./run.sh admin
+# http://127.0.0.1:8001/admin
+```
+
+It supports single-image upload, local folder scanning, visual name/tag editing (including existing images), draft/published status, never-reused IDs, thumbnails, and a quarantined submission inbox. See [admin/README.md](admin/README.md).
 
 ## Deployment
 
