@@ -58,6 +58,23 @@ class ApiTest(unittest.TestCase):
         self.assertEqual(self.client.get("/api/thumbs/114/320").status_code, 404)
         self.assertEqual(self.client.get("/api/images/114").status_code, 404)
 
+    def test_explicit_id_search(self) -> None:
+        first = self.client.get("/api/gallery", params={"limit": 1}).json()["items"][0]
+        image_id = first["id"]
+        response = self.client.get("/api/search/list", params={"q": f"id{image_id}"})
+        self.assertEqual(response.status_code, 200)
+        body = response.json()
+        self.assertEqual(body["total"], 1)
+        self.assertEqual(body["items"][0]["id"], image_id)
+        self.assertEqual(body["items"][0]["method"], "id")
+        meta = self.client.get("/api/search/meta", params={"q": f"ID {image_id}"})
+        self.assertEqual(meta.status_code, 200)
+        self.assertEqual(meta.json()["id"], image_id)
+        missing = self.client.get("/api/search/list", params={"q": "id99999"})
+        self.assertEqual(missing.status_code, 200)
+        self.assertEqual(missing.json()["items"], [])
+        self.assertFalse(missing.json()["fallback"])
+
     def test_search_list_is_multi_result(self) -> None:
         response = self.client.get("/api/search/list", params={"q": "开心", "limit": 5})
         self.assertEqual(response.status_code, 200)

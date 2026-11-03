@@ -36,6 +36,7 @@ from meme_pipeline.util import ValidationError, atomic_write_json, clean_name, i
 
 LOGGER = logging.getLogger("meme_api")
 ID_RE = re.compile(r"^[0-9]{1,5}$")
+ID_QUERY_RE = re.compile(r"^\s*id\s*[-_ ]?\s*([0-9]{1,5})\s*$", re.IGNORECASE)
 VERSION = "1.3.0"
 
 
@@ -397,6 +398,24 @@ def _image_file(
     return FileResponse(path, media_type=media_type, headers=headers)
 
 
+def _explicit_id_query(query: str) -> str | None:
+    match = ID_QUERY_RE.fullmatch(str(query or ""))
+    if not match:
+        return None
+    return str(int(match.group(1), 10))
+
+
+def _public_entry_by_id(library: "Library", image_id: str) -> dict[str, Any] | None:
+    entry = library.public_by_id.get(image_id)
+    if entry is not None:
+        return entry
+    # Tolerate catalogs that use zero-padded IDs in the future.
+    for candidate in library.public_entries:
+        if str(candidate.get("id", "")).isdigit() and int(candidate["id"]) == int(image_id):
+            return candidate
+    return None
+
+
 def _search(
     request: Request,
     q: str,
@@ -406,6 +425,25 @@ def _search(
     stable: bool,
 ) -> dict[str, Any]:
     library = _get_library(request)
+    explicit_id = _explicit_id_query(q)
+    if explicit_id is not None:
+        entry = _public_entry_by_id(library, explicit_id)
+        if entry is None:
+            raise HTTPException(status_code=404, detail="image by id not found")
+        payload = _image_payload(request, entry)
+        payload.update(
+            {
+                "query": q,
+                "matched_field": "id",
+                "matched_value": explicit_id,
+                "canonical": None,
+                "score": 1.0,
+                "method": "id",
+                "fallback": False,
+                "candidate_count": 1,
+            }
+        )
+        return payload
     try:
         result = library.engine.search(
             q,
@@ -574,6 +612,38 @@ def search_list(
     offset: int = Query(0, ge=0),
 ) -> SearchListResponse:
     library = _get_library(request)
+    explicit_id = _explicit_id_query(q)
+    if explicit_id is not None:
+        entry = _public_entry_by_id(library, explicit_id)
+        if entry is None or offset > 0:
+            return SearchListResponse(
+                query=q,
+                total=0,
+                limit=limit,
+                offset=offset,
+                fallback=False,
+                fallback_reason="id_not_found" if entry is None else None,
+                items=[],
+            )
+        payload = _image_payload(request, entry)
+        payload.update(
+            {
+                "score": 1.0,
+                "method": "id",
+                "matched_field": "id",
+                "matched_value": explicit_id,
+                "canonical": None,
+            }
+        )
+        return SearchListResponse(
+            query=q,
+            total=1,
+            limit=limit,
+            offset=offset,
+            fallback=False,
+            fallback_reason=None,
+            items=[SearchListItem(**payload)],
+        )
     try:
         result = library.engine.search_many(
             q, min_score=min_score, limit=limit, offset=offset

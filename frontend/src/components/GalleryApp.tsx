@@ -424,10 +424,10 @@ export default function GalleryApp({
                 <p className="hero-desc">收录 <strong>{items.length || 1164}</strong> 张奶龙与奶蛙表情，按心情、角色、状态随手翻。找到今天想发的那一张，点开就能下载。</p>
                 <form className="hero-search" onSubmit={submitSearch}>
                   <SearchIcon />
-                  <input type="search" value={queryInput} onChange={(event) => setQueryInput(event.target.value)} placeholder="搜「开心」「奶蛙大笑」…" aria-label="搜索表情" />
+                  <input type="search" value={queryInput} onChange={(event) => setQueryInput(event.target.value)} placeholder="搜「开心」「奶蛙大笑」或 id1181…" aria-label="搜索表情" />
                   <button className="btn btn-primary" type="submit"><span>搜一下</span></button>
                 </form>
-                <div className="search-hint"><span>同音字也能搜：</span><kbd>开新</kbd><span>→ 开心</span><span>·</span><span>组合标签：奶蛙大笑</span></div>
+                <div className="search-hint"><span>同音字也能搜：</span><kbd>开新</kbd><span>→ 开心</span><span>·</span><span>组合标签：奶蛙大笑</span><span>·</span><span>ID 直达：</span><kbd>id1181</kbd></div>
                 <div className="tag-row" aria-label="热门标签">
                   {heroTags.map((value) => (
                     <button className={`tag ${tag === value ? 'hot' : ''}`} key={value} type="button" onClick={() => selectTag(value)}><span className="hash">#</span>{value}</button>
