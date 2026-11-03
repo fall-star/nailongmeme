@@ -167,7 +167,7 @@ MEME_DATA_DIR="$PWD" ./run.sh admin
 # http://127.0.0.1:8001/admin
 ```
 
-It supports single-image upload, local folder scanning, visual name/tag editing (including existing images), draft/published status, never-reused IDs, thumbnails, and a quarantined submission inbox. See [admin/README.md](admin/README.md).
+It supports single-image upload, native folder selection, image-only folder scanning, visual name/tag editing (including existing images), draft/published status, never-reused IDs, thumbnails, per-candidate deletion and a quarantined submission inbox. The “同步到服务器” button previews, confirms, builds and deploys the selected changes over SSH. See [admin/README.md](admin/README.md).
 
 ## Deployment
 

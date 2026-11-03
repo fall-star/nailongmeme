@@ -42,7 +42,7 @@ from meme_pipeline.util import (
     sha256_file,
 )
 
-IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".jpe", ".jfif", ".png", ".gif", ".webp", ".bmp", ".tif", ".tiff"}
+IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".jpe", ".jfif", ".png", ".gif", ".webp", ".bmp", ".tif", ".tiff", ".avif", ".heic", ".heif", ".ico"}
 MAX_FILES = 500
 MAX_BYTES = 50 * 1024 * 1024
 THUMB_SIZES = (320, 640)
@@ -183,7 +183,7 @@ def scan_folder(folder: str | Path, *, root: Path | None = None, recursive: bool
         try:
             if path.is_symlink() or not path.is_file():
                 continue
-            if path.name.startswith("."):
+            if path.name.startswith(".") or path.suffix.lower() not in IMAGE_EXTENSIONS:
                 continue
         except OSError:
             continue

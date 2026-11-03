@@ -333,10 +333,44 @@
         <td><input class="scan-name" value="${escapeHtml(item.name || '')}" ${disabled ? 'disabled' : ''}></td>
         <td><input class="scan-tags" value="${escapeHtml(tags)}" placeholder="奶蛙,大笑" ${disabled ? 'disabled' : ''}></td>
         <td><span class="badge ${escapeHtml(item.status)}">${item.status === 'ready' ? '可导入' : item.status === 'duplicate' ? '重复' : '无效'}</span>${item.reason ? `<small title="${escapeHtml(item.reason)}"> ${escapeHtml(item.reason.slice(0, 18))}</small>` : ''}</td>
+        <td><button type="button" class="scan-delete" data-delete-token="${escapeHtml(item.token)}" title="从本次扫描删除">删除</button></td>
       </tr>`;
     }).join('');
     $('#commit-result').hidden = true;
     panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  async function syncServer() {
+    const button = $('#sync-server');
+    button.disabled = true;
+    button.textContent = '检查中…';
+    try {
+      const preview = await api('/api/admin/sync/preview');
+      const lines = [
+        `本地已发布 ${preview.local_public} 张，生产公开 ${preview.production_public} 张。`,
+        `新增公开图片：${preview.new_public_count} 张`,
+        `元数据变化：${preview.changed_public_count} 条`,
+        `草稿：${preview.drafts} 张（只同步元数据，不上传草稿图片）`,
+        '',
+        '将重新构建并替换生产前端，并重启生产 API。确定同步？',
+      ];
+      if (!window.confirm(lines.join('\n'))) return;
+      button.textContent = '同步中…';
+      const result = await api('/api/admin/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ confirm: true }),
+      });
+      toast(`同步完成：${result.new_public_ids.length} 张新图，${result.changed_public_count} 条元数据变化`);
+      await loadStats();
+      await loadTags();
+      await loadImages();
+    } catch (error) {
+      toast(error.message, true);
+    } finally {
+      button.disabled = false;
+      button.textContent = '同步到服务器';
+    }
   }
 
   async function loadSavedScans() {
@@ -435,6 +469,47 @@
     }
   }
 
+  async function deleteScanItem(token) {
+    if (!state.scan) return;
+    try {
+      const scanId = state.scan.scan_id;
+      const result = await api(`/api/admin/scans/${scanId}/items/${encodeURIComponent(token)}`, { method: 'DELETE' });
+      state.scanItems.delete(token);
+      const row = document.querySelector(`#scan-body tr[data-token="${CSS.escape(token)}"]`);
+      if (row) row.remove();
+      if (!result.remaining) {
+        state.scan = null;
+        $('#scan-panel').hidden = true;
+        $('#saved-scans').hidden = true;
+        toast('已删除，本次扫描没有候选图片');
+      } else {
+        state.scan.items = result.items;
+        $('#scan-summary').textContent = `${result.items.length} 个文件 · ${result.items.filter((item) => item.status === 'ready').length} 可导入`;
+        toast('已从本次扫描删除');
+      }
+    } catch (error) {
+      toast(error.message, true);
+    }
+  }
+
+  async function pickFolder() {
+    const button = $('#pick-folder');
+    button.disabled = true;
+    button.textContent = '选择中…';
+    try {
+      const result = await api('/api/admin/choose-folder', { method: 'POST' });
+      if (!result.cancelled && result.path) {
+        $('#folder-path').value = result.path;
+        await scanFolder();
+      }
+    } catch (error) {
+      toast(error.message, true);
+    } finally {
+      button.disabled = false;
+      button.textContent = '选择文件夹';
+    }
+  }
+
   function applyCommonTags() {
     const tags = splitTags($('#common-tags').value);
     if (!tags.length) return;
@@ -501,8 +576,14 @@
         toast(error.message, true);
       }
     });
+    $('#sync-server').addEventListener('click', syncServer);
     $('#single-file').addEventListener('change', (event) => uploadSingle(event.target.files[0]));
+    $('#pick-folder').addEventListener('click', pickFolder);
     $('#scan-folder').addEventListener('click', scanFolder);
+    $('#scan-body').addEventListener('click', (event) => {
+      const button = event.target.closest('[data-delete-token]');
+      if (button) deleteScanItem(button.dataset.deleteToken);
+    });
     $('#folder-path').addEventListener('keydown', (event) => { if (event.key === 'Enter') scanFolder(); });
     $('#apply-common-tags').addEventListener('click', applyCommonTags);
     $('#commit-scan').addEventListener('click', commitScan);

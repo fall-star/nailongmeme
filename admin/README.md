@@ -36,13 +36,17 @@ http://127.0.0.1:8001/admin
 
 ### 文件夹
 
-输入本机文件夹绝对路径，管理端递归扫描：
+点击“选择文件夹”会打开系统目录选择器，也可以手动输入本机绝对路径。管理端递归扫描：
 
-- 支持 JPG / PNG / GIF / WebP 等常见格式
+- 只处理 JPG / PNG / GIF / WebP / AVIF / HEIC / TIFF 等图片扩展名
+- txt、json、压缩包等非图片文件直接跳过，不进入扫描结果
 - 自动计算 SHA-256，重复图片不会重复入库
-- 损坏或不支持的图片会标记为 invalid
+- 损坏的图片会标记为 invalid
 - 可以批量加标签
 - 点击导入后分配新 ID
+- 每个候选右侧有“删除”按钮；删除后会从扫描任务和持久化任务中移除，不再参与提交、预览或后续导入
+
+当前原生文件夹选择器使用 macOS `osascript`。手动输入路径在本地其他系统同样可用。
 
 ### ID
 
@@ -107,6 +111,51 @@ data/admin/imports/<scan_id>.json
 cd frontend
 pnpm sync-data
 ```
+
+## 同步到服务器
+
+管理端右上角的“同步到服务器”会先请求预览，再使用本地 SSH 发布到生产：
+
+```text
+GET  /api/admin/sync/preview
+POST /api/admin/sync
+```
+
+默认目标：
+
+```text
+root@47.118.50.113
+/home/nailong/api
+/home/nailong/frontend
+http://47.118.50.113
+```
+
+可通过环境变量覆盖：
+
+```bash
+MEME_PROD_SSH=root@47.118.50.113
+MEME_PROD_API_ROOT=/home/nailong/api
+MEME_PROD_FRONTEND_ROOT=/home/nailong/frontend
+MEME_PROD_BASE_URL=http://47.118.50.113
+```
+
+同步内容：
+
+- catalog / memes / state / manifest
+- 新增 public 图片的原图、转换图、320/640 缩略图
+- 完整重建后的 `frontend/dist`
+- 生产 API 重启
+
+安全边界：
+
+- 只上传 `published` 图片
+- `draft` 只同步元数据，不上传图片
+- 生产 API 1.2 会过滤 draft/blocked
+- 上传前要求浏览器确认
+- 生产 API/前端目录会先备份
+- 需要本机已配置 SSH key，并且 `scp` / `ssh` 可用
+
+如果生产不是 1.2，按钮会拒绝同步并提示先部署 API。
 
 ## 生成生产发布包
 

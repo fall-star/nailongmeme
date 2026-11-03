@@ -189,3 +189,14 @@ select:focus, input:focus { border-color: var(--ink); }
 .saved-scans b { margin-right: 3px; color: var(--ink); }
 .saved-scan { border: 1px solid var(--line); border-radius: 7px; background: var(--card); padding: 6px 8px; font-size: 10px; color: var(--ink); }
 .saved-scan:hover { border-color: var(--ink); }
+
+.scan-delete { border: 1px solid #e3b9b0; border-radius: 6px; background: #fff4f0; color: var(--red); padding: 5px 7px; font-size: 9px; font-weight: 800; white-space: nowrap; }
+.scan-delete:hover { border-color: var(--red); background: #fbe4df; }
+.inline-form .btn { white-space: nowrap; }
+
+.sync-server { margin-left: auto; background: var(--ink); color: var(--card); border-color: var(--ink); white-space: nowrap; }
+.sync-server:hover { background: var(--green); border-color: var(--green); color: #fff; }
+@media (max-width: 900px) {
+  .sync-server { order: 2; font-size: 10px; padding: 8px 9px; }
+  .public-link { order: 3; }
+}

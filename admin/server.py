@@ -26,7 +26,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from admin import ingest, submissions
+from admin import ingest, publish, submissions
 from meme_pipeline.config import Config
 from meme_pipeline.util import ValidationError
 
@@ -199,6 +199,10 @@ class SubmissionReject(BaseModel):
     reason: str = Field(default="", max_length=500)
 
 
+class SyncRequest(BaseModel):
+    confirm: bool = False
+
+
 @app.get("/", include_in_schema=False)
 def root() -> RedirectResponse:
     return RedirectResponse("/admin")
@@ -295,6 +299,31 @@ def scan(body: ScanRequest) -> dict[str, Any]:
     }
 
 
+@app.post("/api/admin/choose-folder")
+def choose_folder() -> dict[str, Any]:
+    """Open the native macOS folder picker from the local admin process."""
+    if os.uname().sysname != "Darwin":
+        raise HTTPException(501, "native folder picker is currently macOS-only; enter a path manually")
+    script = 'POSIX path of (choose folder with prompt "选择要导入的图片文件夹")'
+    try:
+        proc = subprocess.run(
+            ["osascript", "-e", script],
+            capture_output=True,
+            text=True,
+            timeout=120,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise HTTPException(500, f"could not open folder picker: {exc}") from exc
+    if proc.returncode != 0:
+        if "User canceled" in (proc.stderr or "") or "(-128)" in (proc.stderr or ""):
+            return {"cancelled": True, "path": None}
+        raise HTTPException(500, (proc.stderr or "folder picker failed").strip()[:500])
+    path = (proc.stdout or "").strip().rstrip("/")
+    if not path:
+        return {"cancelled": True, "path": None}
+    return {"cancelled": False, "path": path}
+
+
 @app.post("/api/admin/upload")
 async def upload(request: Request, filename: str = Query(..., max_length=180)) -> dict[str, Any]:
     safe_name = Path(filename).name
@@ -363,6 +392,38 @@ def get_scan(scan_id: str) -> dict[str, Any]:
     }
 
 
+@app.delete("/api/admin/scans/{scan_id}/items/{token}")
+def delete_scan_item(scan_id: str, token: str) -> dict[str, Any]:
+    scan = SCANS.get(scan_id)
+    if scan is None:
+        raise HTTPException(404, "scan not found")
+    item = next((entry for entry in scan.items if entry.token == token), None)
+    if item is None:
+        raise HTTPException(404, "scan item not found")
+    scan.items = [entry for entry in scan.items if entry.token != token]
+    # Only remove files that this admin app uploaded itself.  A folder chosen
+    # from the user's disk must never be deleted by the tool.
+    uploads = (cfg().root / "data" / "admin" / "uploads").resolve()
+    try:
+        source = item.source_path.resolve()
+        if source.is_relative_to(uploads):
+            source.unlink(missing_ok=True)
+            parent = source.parent
+            if parent.is_dir() and not any(parent.iterdir()):
+                parent.rmdir()
+    except (OSError, ValueError):
+        pass
+    if scan.items:
+        _save_job(scan)
+    else:
+        _delete_job(scan_id)
+    return {
+        "scan_id": scan_id,
+        "remaining": len(scan.items),
+        "items": [entry.public(scan_id) for entry in scan.items],
+    }
+
+
 @app.post("/api/admin/scans/{scan_id}/commit")
 def commit(scan_id: str, body: CommitRequest) -> dict[str, Any]:
     scan = SCANS.get(scan_id)
@@ -414,6 +475,28 @@ def sync_data() -> dict[str, Any]:
     if proc.returncode != 0:
         raise HTTPException(500, (proc.stderr or proc.stdout or "sync-data failed")[-2000:])
     return {"ok": True, "output": (proc.stdout or "")[-2000:]}
+
+
+# ---------------------------------------------------------------------------
+# Local -> production publisher.  This is never mounted by the public API.
+
+
+@app.get("/api/admin/sync/preview")
+def sync_preview() -> dict[str, Any]:
+    try:
+        return publish.preview(cfg())
+    except (RuntimeError, ValueError) as exc:
+        raise HTTPException(503, str(exc)) from exc
+
+
+@app.post("/api/admin/sync")
+def sync_to_server(body: SyncRequest) -> dict[str, Any]:
+    if not body.confirm:
+        raise HTTPException(400, "sync requires confirm=true")
+    try:
+        return publish.sync(cfg())
+    except (RuntimeError, ValueError) as exc:
+        raise HTTPException(500, str(exc)) from exc
 
 
 # ---------------------------------------------------------------------------

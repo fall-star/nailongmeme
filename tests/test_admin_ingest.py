@@ -80,7 +80,7 @@ class AdminIngestTest(unittest.TestCase):
         copy.write_bytes(self.image.read_bytes())
         scan = ingest.scan_folder(self.root / "inbox", root=self.root)
         statuses = sorted((item.relative_path, item.status) for item in scan.items)
-        self.assertIn(("bad.txt", "invalid"), statuses)
+        self.assertNotIn("bad.txt", {path for path, _ in statuses})
         self.assertEqual(sum(1 for _, status in statuses if status == "duplicate"), 1)
         self.assertEqual(sum(1 for _, status in statuses if status == "ready"), 1)
 
