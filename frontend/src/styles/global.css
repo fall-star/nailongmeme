@@ -1060,3 +1060,6 @@ pre code { color: inherit; background: none; padding: 0; font: inherit; }
   .submit-grid { grid-template-columns: 1fr; }
   .hero-submit-note { display: none; }
 }
+
+/* Submission sits between the hot-tag row and the dashed hero stats rule. */
+.hero-submit-row { margin-top: 14px; }

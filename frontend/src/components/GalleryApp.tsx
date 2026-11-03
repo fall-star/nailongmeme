@@ -427,6 +427,13 @@ export default function GalleryApp({
                   <input type="search" value={queryInput} onChange={(event) => setQueryInput(event.target.value)} placeholder="搜「开心」「奶蛙大笑」…" aria-label="搜索表情" />
                   <button className="btn btn-primary" type="submit"><span>搜一下</span></button>
                 </form>
+                <div className="search-hint"><span>同音字也能搜：</span><kbd>开新</kbd><span>→ 开心</span><span>·</span><span>组合标签：奶蛙大笑</span></div>
+                <div className="tag-row" aria-label="热门标签">
+                  {heroTags.map((value) => (
+                    <button className={`tag ${tag === value ? 'hot' : ''}`} key={value} type="button" onClick={() => selectTag(value)}><span className="hash">#</span>{value}</button>
+                  ))}
+                  <a className="tag" href="/tags"><span className="hash">#</span>更多</a>
+                </div>
                 <div className="hero-submit-row">
                   <button className="hero-submit" type="button" onClick={() => setSubmissionOpen(true)}>
                     <span className="hero-submit-mark">＋</span>
@@ -434,13 +441,6 @@ export default function GalleryApp({
                     <span className="hero-submit-arrow">↗</span>
                   </button>
                   <span className="hero-submit-note">审核通过后公开</span>
-                </div>
-                <div className="search-hint"><span>同音字也能搜：</span><kbd>开新</kbd><span>→ 开心</span><span>·</span><span>组合标签：奶蛙大笑</span></div>
-                <div className="tag-row" aria-label="热门标签">
-                  {heroTags.map((value) => (
-                    <button className={`tag ${tag === value ? 'hot' : ''}`} key={value} type="button" onClick={() => selectTag(value)}><span className="hash">#</span>{value}</button>
-                  ))}
-                  <a className="tag" href="/tags"><span className="hash">#</span>更多</a>
                 </div>
                 <div className="hero-meta">
                   <div><b>{items.length || 1164}</b><span>公开图片</span></div>
