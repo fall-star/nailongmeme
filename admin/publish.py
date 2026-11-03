@@ -54,6 +54,23 @@ def _paths() -> tuple[str, str, str, str]:
     return api_root, frontend_root, base, local
 
 
+def check_ssh() -> dict[str, Any]:
+    host = _prod_ssh()
+    try:
+        proc = subprocess.run(
+            ["ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=8", host, "true"],
+            capture_output=True,
+            text=True,
+            timeout=15,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        return {"ok": False, "error": str(exc)}
+    if proc.returncode != 0:
+        return {"ok": False, "error": (proc.stderr or proc.stdout or "ssh failed").strip()[-1000:]}
+    return {"ok": True, "error": None}
+
+
 def _read_json(url: str, timeout: int = 20) -> Any:
     request = urllib.request.Request(url, headers={"Accept": "application/json", "User-Agent": "nailong-admin"})
     with urllib.request.urlopen(request, timeout=timeout) as response:
@@ -136,8 +153,11 @@ def preview(cfg: Config) -> dict[str, Any]:
     except (OSError, ValueError, urllib.error.URLError) as exc:
         local_error = str(exc)
 
+    ssh_check = check_ssh()
     return {
         "ssh": ssh_host,
+        "ssh_ok": ssh_check["ok"],
+        "ssh_error": ssh_check["error"],
         "api_root": api_root,
         "frontend_root": frontend_root,
         "production_base": base,
@@ -160,12 +180,18 @@ def preview(cfg: Config) -> dict[str, Any]:
 
 
 def _run(command: list[str], *, cwd: Path, timeout: int = 300) -> subprocess.CompletedProcess[str]:
+    env = os.environ.copy()
+    # Astro's telemetry config lives under ~/Library/Preferences/astro on
+    # macOS.  The local admin process may run under a restricted sandbox, so
+    # disable telemetry before invoking the build.
+    env["ASTRO_TELEMETRY_DISABLED"] = "1"
     return subprocess.run(
         command,
         cwd=cwd,
         capture_output=True,
         text=True,
         timeout=timeout,
+        env=env,
         check=False,
     )
 
@@ -215,6 +241,8 @@ def sync(cfg: Config) -> dict[str, Any]:
     summary = preview(cfg)
     if not summary["local_api_ok"]:
         raise RuntimeError(f"本地 API 不可用，无法构建前台：{summary['local_api_error']}")
+    if not summary.get("ssh_ok"):
+        raise RuntimeError(f"无法通过 SSH 连接生产：{summary.get('ssh_error')}")
     ssh_host = summary["ssh"]
     api_root = summary["api_root"]
     frontend_root = summary["frontend_root"]

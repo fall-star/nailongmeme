@@ -351,6 +351,7 @@
         `新增公开图片：${preview.new_public_count} 张`,
         `元数据变化：${preview.changed_public_count} 条`,
         `草稿：${preview.drafts} 张（只同步元数据，不上传草稿图片）`,
+        `SSH：${preview.ssh_ok ? '已连接' : '不可用'}`,
         '',
         '将重新构建并替换生产前端，并重启生产 API。确定同步？',
       ];
