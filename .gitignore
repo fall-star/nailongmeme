@@ -21,6 +21,8 @@ data/snapshots/
 data/vision/
 data/archive/
 data/backups/
+data/auth/
+data/avatars/
 data/.write.lock
 
 # Image data, screenshots and historical reports are not distributed
@@ -47,3 +49,6 @@ production/*
 !production/api/
 !production/api/__init__.py
 !production/api/main.py
+!production/api/auth.py
+!production/api/mailer.py
+!production/api/send_mail.py

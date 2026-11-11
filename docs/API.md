@@ -2,9 +2,29 @@
 
 Development base URL: `http://127.0.0.1:8000/api`
 
-Production IP OpenAPI document: [openapi-ip.yaml](openapi-ip.yaml) · [JSON](openapi-ip.json) · server `https://nailong.fall-star.top`
+Production OpenAPI document: [openapi-ip.yaml](openapi-ip.yaml) · [JSON](openapi-ip.json) · server `https://nailong.fall-star.top`
+
+Read endpoints are public. `POST /api/submissions` and `POST /api/tag-suggestions` require a signed-in account and a session cookie.
 
 All successful image endpoints return image bytes, not JSON. Use the metadata endpoints when `id`, `name`, `tag`, `image_url` or `thumb_url` are needed.
+
+## Auth
+
+Account writes use a secure, host-only session cookie. Read endpoints remain public.
+
+| Method | Path | Purpose |
+|---|---|---|
+| POST | `/api/auth/register` | Create an account |
+| POST | `/api/auth/login` | Password login; admin accounts receive an email-code challenge |
+| POST | `/api/auth/verify-code` | Complete an admin email-code challenge |
+| POST | `/api/auth/resend-code` | Resend an admin challenge code |
+| POST | `/api/auth/logout` | Delete the current session |
+| GET | `/api/auth/me` | Current signed-in user |
+| POST | `/api/account/avatar` | Upload or replace the current avatar |
+| GET | `/api/avatars/default` | Default avatar |
+| GET | `/api/avatars/{user_id}` | User avatar |
+
+`POST /api/submissions` and `POST /api/tag-suggestions` return `401` without a valid session.
 
 ## Search
 
@@ -105,7 +125,7 @@ Entries without `奶蛙` receive a derived `奶龙` tag at runtime.
 ```json
 {
   "status": "ok",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "catalog_entries": 1171,
   "images": 1171,
   "public_images": 1164,

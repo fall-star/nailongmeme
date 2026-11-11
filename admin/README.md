@@ -173,12 +173,12 @@ MEME_PROD_BASE_URL=https://nailong.fall-star.top
 
 - 只上传 `published` 图片
 - `draft` 只同步元数据，不上传图片
-- 生产 API 1.2 会过滤 draft/blocked
+- 生产 API 1.2+ 会过滤 draft/blocked
 - 上传前要求浏览器确认
 - 生产 API/前端目录会先备份
 - 需要本机已配置 SSH key，并且 `scp` / `ssh` 可用
 
-如果生产不是 1.2，按钮会拒绝同步并提示先部署 API。
+当前生产 API 为 1.4；如果低于 1.2，按钮会拒绝同步并提示先部署 API。
 
 ## 生成生产发布包
 
@@ -210,11 +210,11 @@ POST /api/admin/submissions/{id}/reject
 data/submissions/<submission_id>/
 ```
 
-只有审核通过后才会分配 catalog ID、写入 catalog 并公开。当前公开投稿前端尚未接入，生产 API 也还没有开放这个写入入口。
+只有审核通过后才会分配 catalog ID、写入 catalog 并公开。公开投稿入口需要登录；投稿和 tag 建议会携带投稿者昵称、邮箱和头像。管理员审核时可勾选“通过后发邮件通知”（默认关闭，拒绝不发送）。管理员账号为 Fallstar，每次登录需要邮箱验证码。
 
 ## 安全边界
 
 - 管理端只绑定 `127.0.0.1`
 - 生产 Nginx 没有 `/admin`，生产 API 没有 `/api/admin/*`
-- `data/submissions`、`data/admin` 已加入 `.gitignore`
+- `data/submissions`、`data/admin`、`data/auth`、`data/avatars` 已加入 `.gitignore`
 - 管理端不做多用户权限，仅适合单机开发使用

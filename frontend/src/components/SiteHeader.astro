@@ -1,4 +1,5 @@
 ---
+import AuthMenu from './AuthMenu';
 const { active = 'all' } = Astro.props;
 const nav = [
   { key: 'all', label: '全部', href: '/' },
@@ -35,6 +36,7 @@ const nav = [
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 7 4 12l5 5M15 7l5 5-5 5M13 5l-2 14"/></svg>
         <span class="api-docs-label">API 文档</span>
       </a>
+      <AuthMenu client:load />
     </div>
   </div>
 </header>

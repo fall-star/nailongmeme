@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
+import { getCurrentUser, openAuth } from '../lib/auth-client';
 
 type Props = { imageId: string; imageName: string; existingTags: string[] };
 
@@ -10,6 +11,17 @@ export default function TagSuggest({ imageId, imageName, existingTags }: Props) 
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+
+  async function toggleOpen() {
+    if (!open) {
+      const current = await getCurrentUser();
+      if (!current) {
+        openAuth('login');
+        return;
+      }
+    }
+    setOpen((value) => !value);
+  }
 
   async function submit(event: FormEvent) {
     event.preventDefault();
@@ -25,6 +37,11 @@ export default function TagSuggest({ imageId, imageName, existingTags }: Props) 
         body: JSON.stringify({ image_id: imageId, tags: values, note: note.trim() }),
       });
       const result = await response.json().catch(() => ({}));
+      if (response.status === 401) {
+        setOpen(false);
+        openAuth('login');
+        throw new Error('请先登录后再提交标签');
+      }
       if (!response.ok) throw new Error(result.detail || '提交失败');
       setMessage('tag 已提交，管理员审核通过后才会生效。');
       setTags('');
@@ -38,7 +55,7 @@ export default function TagSuggest({ imageId, imageName, existingTags }: Props) 
 
   return (
     <div className={open ? 'tag-suggest is-open' : 'tag-suggest'}>
-      <button className="tag-suggest-trigger" type="button" onClick={() => setOpen((value) => !value)} aria-expanded={open}>
+      <button className="tag-suggest-trigger" type="button" onClick={toggleOpen} aria-expanded={open}>
         <span className="tag-suggest-icon">#</span>
         <span><b>我要打tag</b><small>给「{imageName}」补充标签</small></span>
         <span className="tag-suggest-arrow">{open ? '−' : '+'}</span>

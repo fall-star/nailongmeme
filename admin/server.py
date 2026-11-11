@@ -26,7 +26,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from admin import ingest, publish, remote_inbox, submissions, tag_suggestions
+from admin import ingest, notifier, publish, remote_inbox, submissions, tag_suggestions
 from meme_pipeline.config import Config
 from meme_pipeline.util import ValidationError
 
@@ -193,6 +193,7 @@ class SubmissionApprove(BaseModel):
     name: str = Field(min_length=1, max_length=120)
     tag: list[str] = Field(default_factory=list)
     publish: bool = True
+    notify_user: bool = False
 
 
 class SubmissionReject(BaseModel):
@@ -205,6 +206,7 @@ class SyncRequest(BaseModel):
 
 class TagSuggestionApprove(BaseModel):
     tags: list[str] | None = None
+    notify_user: bool = False
 
 
 class TagSuggestionReject(BaseModel):
@@ -547,17 +549,29 @@ def pull_public_inbox() -> dict[str, Any]:
         raise HTTPException(503, str(exc)) from exc
 
 
+def _absolute_avatar(item: dict[str, Any]) -> dict[str, Any]:
+    avatar = str(item.get("user_avatar_url", "") or "")
+    if avatar.startswith("/"):
+        base = os.getenv("MEME_PROD_BASE_URL", "https://nailong.fall-star.top").rstrip("/")
+        item["user_avatar_url"] = base + avatar
+    return item
+
+
 @app.get("/api/admin/tag-suggestions")
 def admin_tag_suggestions(status: str = "") -> dict[str, Any]:
-    return {"items": tag_suggestions.list_suggestions(cfg(), status=status)}
+    items = [_absolute_avatar(item) for item in tag_suggestions.list_suggestions(cfg(), status=status)]
+    return {"items": items}
 
 
 @app.post("/api/admin/tag-suggestions/{suggestion_id}/approve")
 def approve_tag_suggestion(suggestion_id: str, body: TagSuggestionApprove) -> dict[str, Any]:
     try:
-        return tag_suggestions.approve(cfg(), suggestion_id, tags=body.tags)
+        result = tag_suggestions.approve(cfg(), suggestion_id, tags=body.tags)
     except ValidationError as exc:
         raise HTTPException(400, str(exc)) from exc
+    if body.notify_user:
+        result["notification"] = notifier.tag_suggestion_approved(result)
+    return result
 
 
 @app.post("/api/admin/tag-suggestions/{suggestion_id}/reject")
@@ -570,7 +584,8 @@ def reject_tag_suggestion(suggestion_id: str, body: TagSuggestionReject) -> dict
 
 @app.get("/api/admin/submissions")
 def admin_submissions(status: str = "") -> dict[str, Any]:
-    return {"items": submissions.list_submissions(cfg(), status=status)}
+    items = [_absolute_avatar(item) for item in submissions.list_submissions(cfg(), status=status)]
+    return {"items": items}
 
 
 @app.get("/api/admin/submissions/{submission_id}/preview")
@@ -585,7 +600,7 @@ def submission_preview(submission_id: str) -> FileResponse:
 @app.post("/api/admin/submissions/{submission_id}/approve")
 def approve_submission(submission_id: str, body: SubmissionApprove) -> dict[str, Any]:
     try:
-        return submissions.approve_submission(
+        result = submissions.approve_submission(
             cfg(),
             submission_id,
             name=body.name,
@@ -594,6 +609,10 @@ def approve_submission(submission_id: str, body: SubmissionApprove) -> dict[str,
         )
     except ValidationError as exc:
         raise HTTPException(400, str(exc)) from exc
+    if body.notify_user and result.get("status") == "approved":
+        record = submissions.get_submission(cfg(), submission_id)
+        result["notification"] = notifier.submission_approved(record, result.get("catalog_id"))
+    return result
 
 
 @app.post("/api/admin/submissions/{submission_id}/reject")

@@ -111,7 +111,7 @@ def preview(cfg: Config) -> dict[str, Any]:
         raise RuntimeError(f"生产环境不可达：{exc}") from exc
     version = str(health.get("version", ""))
     if tuple(int(part) for part in version.split(".")[:2]) < (1, 2):
-        raise RuntimeError(f"生产 API 版本是 {version}，需要先部署 1.2")
+        raise RuntimeError(f"生产 API 版本是 {version}，需要先部署 1.2+")
     if not isinstance(prod_index, list):
         raise RuntimeError("生产公开索引格式异常")
 

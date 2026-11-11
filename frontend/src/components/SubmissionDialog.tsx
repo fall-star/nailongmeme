@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ChangeEvent, DragEvent, FormEvent } from 'react';
+import { getCurrentUser, openAuth } from '../lib/auth-client';
 
 type Props = {
   open: boolean;
@@ -22,9 +23,19 @@ export default function SubmissionDialog({ open, onClose }: Props) {
 
   useEffect(() => {
     if (!open) return;
+    let cancelled = false;
     setMessage('');
     setError('');
-    window.setTimeout(() => inputRef.current?.focus(), 80);
+    getCurrentUser().then((current) => {
+      if (cancelled) return;
+      if (!current) {
+        onClose();
+        openAuth('login');
+        return;
+      }
+      window.setTimeout(() => inputRef.current?.focus(), 80);
+    });
+    return () => { cancelled = true; };
   }, [open]);
 
   useEffect(() => {
@@ -93,6 +104,11 @@ export default function SubmissionDialog({ open, onClose }: Props) {
         body: file,
       });
       const result = await response.json().catch(() => ({}));
+      if (response.status === 401) {
+        onClose();
+        openAuth('login');
+        throw new Error('请先登录后再投稿');
+      }
       if (!response.ok) throw new Error(result.detail || '投稿失败');
       setMessage('投稿已收到，管理员审核通过后才会公开。');
       setFile(null);

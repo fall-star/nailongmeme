@@ -16,10 +16,10 @@ info:
 
     - Entries without a 奶蛙 tag are treated as 奶龙 at runtime.
 
-    - No authentication is required. The production Nginx edge applies 20 requests/second per client IP with burst 40.
+    - Read endpoints are public. Write endpoints require a signed-in account and session cookie. The production Nginx edge applies 20 requests/second per client IP with burst 40.
 
     - HTTPS is enabled at the canonical domain. Use https://nailong.fall-star.top as the base URL.'
-  version: 1.3.0
+  version: 1.4.0
   license:
     name: MIT
     url: https://github.com/fall-star/nailongmeme/blob/main/LICENSE

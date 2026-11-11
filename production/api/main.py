@@ -7,7 +7,7 @@ Data layout expected under MEME_DATA_DIR (default /data):
     data/search/pinyin.json
     img/converted/<id>.jpg|gif
 
-The app only reads data; it never writes to the library.
+Library browsing is read-only; authenticated submissions, tag suggestions, accounts and avatars are stored in separate quarantined directories.
 """
 
 from __future__ import annotations
@@ -24,7 +24,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from fastapi import APIRouter, FastAPI, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from pydantic import BaseModel, Field
@@ -33,11 +33,12 @@ from meme_pipeline.search import SearchEngine
 from meme_pipeline.imaging import extension_for, inspect_image
 from meme_pipeline.maintenance import clean_tag
 from meme_pipeline.util import ValidationError, atomic_write_json, clean_name, iso_local, sha256_file
+from . import auth as auth_module
 
 LOGGER = logging.getLogger("meme_api")
 ID_RE = re.compile(r"^[0-9]{1,5}$")
 ID_QUERY_RE = re.compile(r"^\s*id\s*[-_ ]?\s*([0-9]{1,5})\s*$", re.IGNORECASE)
-VERSION = "1.3.0"
+VERSION = "1.4.0"
 
 
 def _env_int(name: str, default: int) -> int:
@@ -274,6 +275,7 @@ class TagSuggestionRequest(BaseModel):
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     LOGGER.info("loading meme library from %s", SETTINGS.data_dir)
+    auth_module.init_auth()
     app.state.library = Library(SETTINGS.data_dir)
     try:
         app.state.library_mtime = app.state.library.catalog_path.stat().st_mtime_ns
@@ -839,6 +841,7 @@ async def public_submit(
     source: str = Query("", max_length=500),
     contact: str = Query("", max_length=300),
     rights_accepted: bool = Query(False),
+    user: dict[str, Any] = Depends(auth_module.require_user),
 ) -> JSONResponse:
     if not rights_accepted:
         raise HTTPException(status_code=400, detail="必须确认拥有图片投稿和展示权限")
@@ -868,6 +871,7 @@ async def public_submit(
             "submission_id": submission_id,
             "status": "duplicate" if duplicate_id else "pending_review",
             "name": clean_name(name)[:120],
+            **auth_module.user_snapshot(user),
             "tag": list(dict.fromkeys(tags)),
             "source": source.strip()[:500],
             "contact": contact.strip()[:300],
@@ -898,7 +902,7 @@ async def public_submit(
 
 
 @router.post("/tag-suggestions", status_code=201, summary="Suggest tags for an existing public image")
-def suggest_tags(payload: TagSuggestionRequest, request: Request) -> JSONResponse:
+def suggest_tags(payload: TagSuggestionRequest, request: Request, user: dict[str, Any] = Depends(auth_module.require_user)) -> JSONResponse:
     library = _get_library(request)
     image_id = payload.image_id.strip()
     if image_id not in library.public_by_id:
@@ -919,6 +923,7 @@ def suggest_tags(payload: TagSuggestionRequest, request: Request) -> JSONRespons
         "suggestion_id": suggestion_id,
         "image_id": image_id,
         "image_name": entry.get("name", ""),
+        **auth_module.user_snapshot(user),
         "tags": tags,
         "note": payload.note.strip()[:300],
         "status": "pending_review",
@@ -935,6 +940,9 @@ def suggest_tags(payload: TagSuggestionRequest, request: Request) -> JSONRespons
 
 
 app.include_router(router)
+app.include_router(auth_module.router)
+app.include_router(auth_module.account_router)
+app.include_router(auth_module.avatar_router)
 
 
 @app.get("/", include_in_schema=False)

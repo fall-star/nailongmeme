@@ -2,7 +2,7 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
-A self-hosted meme library for Nailong and Naiwa images: a FastAPI read-only API and an Astro static frontend.
+A self-hosted meme library for Nailong and Naiwa images: a FastAPI API with public read endpoints, authenticated quarantine writers, and an Astro static frontend.
 
 
 ## Features
@@ -14,8 +14,9 @@ A self-hosted meme library for Nailong and Naiwa images: a FastAPI read-only API
 - Random filmstrip on the home page; cards link to detail pages
 - Optional sprite-sheet desk pet (asset not included, see below)
 - Sensitive-content filter driven by `data/review/sensitive.json`
-- No database
-- Public meme submission and per-image tag suggestions, held in quarantine until local admin review and sync
+- SQLite-backed accounts and sessions, separate from the image catalog
+- Email/password registration and admin email-code login
+- Sign-in-gated meme submissions and per-image tag suggestions, held in quarantine until local admin review and sync
 
 ## Repository layout
 

@@ -245,9 +245,13 @@
       list.innerHTML = data.items.map((item) => {
         const statusLabels = { pending_review: '待审核', approved: '已通过', rejected: '已拒绝', duplicate: '重复', received: '已接收' };
         const disabled = ['approved', 'rejected'].includes(item.status) ? 'disabled' : '';
+        const submitter = item.user_nickname
+          ? `<div class="submission-user">${item.user_avatar_url ? `<img src="${escapeHtml(item.user_avatar_url)}" alt="">` : ''}<span><b>${escapeHtml(item.user_nickname)}</b><small>${escapeHtml(item.user_email || '')}</small></span></div>`
+          : '<div class="submission-user legacy">旧投稿 · 无账户信息</div>';
         return `<article class="submission-card" data-id="${escapeHtml(item.submission_id)}">
           <img src="${escapeHtml(item.preview_url)}" alt="">
           <div class="submission-body">
+            ${submitter}
             <span class="submission-status ${escapeHtml(item.status)}">${statusLabels[item.status] || escapeHtml(item.status)}</span>
             <div class="submission-name">${escapeHtml(item.name || '提交者未命名')}</div>
             <div class="submission-id">${escapeHtml(item.submission_id)}</div>
@@ -256,6 +260,7 @@
               <input class="submission-name-input" value="${escapeHtml(item.name || '')}" placeholder="最终名称" ${disabled}>
               <input class="submission-tag-input" value="${escapeHtml((item.tag || []).join(','))}" placeholder="最终标签，逗号分隔" ${disabled}>
             </div>
+            <label class="notify-row"><input type="checkbox" class="notify-user" ${disabled || !item.user_email ? 'disabled' : ''}> 通过后发邮件通知${item.user_email ? '' : '（无邮箱）'}</label>
             <div class="submission-actions">
               <button class="btn primary submission-approve" ${disabled}>通过并发布</button>
               <button class="btn submission-reject" ${disabled}>拒绝</button>
@@ -282,9 +287,11 @@
         <article class="tag-suggestion-card" data-suggestion="${escapeHtml(item.suggestion_id)}">
           <img src="${escapeHtml(item.preview_url)}" alt="">
           <div class="tag-suggestion-body">
+            ${item.user_nickname ? `<div class="submission-user">${item.user_avatar_url ? `<img src="${escapeHtml(item.user_avatar_url)}" alt="">` : ''}<span><b>${escapeHtml(item.user_nickname)}</b><small>${escapeHtml(item.user_email || '')}</small></span></div>` : '<div class="submission-user legacy">旧建议 · 无账户信息</div>'}
             <div class="submission-id">#${escapeHtml(item.image_id)} · ${escapeHtml(item.image_name || '')}</div>
             <div class="suggested-tags">${(item.tags || []).map((tag) => `<span class="tag-chip">${escapeHtml(tag)}</span>`).join('')}</div>
             ${item.note ? `<p class="suggestion-note">${escapeHtml(item.note)}</p>` : ''}
+            <label class="notify-row"><input type="checkbox" class="notify-user" ${!item.user_email ? 'disabled' : ''}> 通过后发邮件通知${item.user_email ? '' : '（无邮箱）'}</label>
             <div class="submission-actions">
               <button class="btn primary tag-approve">通过并加入本地</button>
               <button class="btn tag-reject">拒绝</button>
@@ -298,12 +305,15 @@
 
   async function approveTagSuggestion(id) {
     try {
+      const card = document.querySelector(`.tag-suggestion-card[data-suggestion="${CSS.escape(id)}"]`);
+      const notify = Boolean(card?.querySelector('.notify-user')?.checked);
       const result = await api(`/api/admin/tag-suggestions/${id}/approve`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({}),
+        body: JSON.stringify({ notify_user: notify }),
       });
-      toast('tag 已加入本地 catalog，记得点击“同步到服务器”');
+      const mail = result.notification?.ok ? '，通知邮件已发送' : (notify ? '，但通知邮件失败' : '');
+      toast(`tag 已加入本地 catalog${mail}，记得点击“同步到服务器”`);
       await loadTagSuggestions();
       await loadStats();
       await loadTags();
@@ -353,13 +363,15 @@
     const name = card.querySelector('.submission-name-input').value.trim();
     const tag = splitTags(card.querySelector('.submission-tag-input').value);
     if (!name) { toast('名称不能为空', true); return; }
+    const notify = Boolean(card.querySelector('.notify-user')?.checked);
     try {
       const result = await api(`/api/admin/submissions/${id}/approve`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, tag, publish: true }),
+        body: JSON.stringify({ name, tag, publish: true, notify_user: notify }),
       });
-      toast(result.status === 'approved' ? `已通过，catalog ID ${result.catalog_id}` : '发现重复，已标记');
+      const mail = result.notification?.ok ? '，通知邮件已发送' : (notify ? '，但通知邮件失败' : '');
+      toast(result.status === 'approved' ? `已通过，catalog ID ${result.catalog_id}${mail}` : '发现重复，已标记');
       await loadSubmissions();
       await loadStats();
       await loadTags();

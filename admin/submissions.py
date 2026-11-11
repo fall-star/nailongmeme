@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 import uuid
 from pathlib import Path
 from typing import Any
@@ -130,6 +131,10 @@ def preview_path(cfg: Config, submission_id: str) -> Path:
     if not path.is_file():
         raise ValidationError("submission image is missing")
     return path
+
+
+def get_submission(cfg: Config, submission_id: str) -> dict[str, Any]:
+    return _load(cfg, submission_id)
 
 
 def approve_submission(

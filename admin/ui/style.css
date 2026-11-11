@@ -211,3 +211,14 @@ select:focus, input:focus { border-color: var(--ink); }
 .suggestion-note { margin: 4px 0 0; font-size: 10px; color: var(--muted); }
 @media (max-width: 1100px) { .tag-suggestion-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 720px) { .tag-suggestion-list { grid-template-columns: 1fr; } .tag-review-head { align-items: flex-start; } }
+
+/* account-aware review cards */
+.submission-user { display: flex; align-items: center; gap: 7px; margin-bottom: 7px; padding-bottom: 7px; border-bottom: 1px dashed var(--line); }
+.submission-user img { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; background: var(--yellow); }
+.submission-user span { min-width: 0; }
+.submission-user b { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 10px; }
+.submission-user small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); font-size: 8px; }
+.submission-user.legacy { color: var(--muted); font-size: 9px; }
+.notify-row { display: flex; align-items: center; gap: 5px; margin-top: 7px; color: var(--muted); font-size: 9px; cursor: pointer; }
+.notify-row input { accent-color: var(--ink); }
+.notify-row:has(input:disabled) { opacity: .55; cursor: default; }
