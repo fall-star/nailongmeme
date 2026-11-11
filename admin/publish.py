@@ -27,7 +27,7 @@ from meme_pipeline.config import Config
 DEFAULT_PROD_SSH = "root@47.118.50.113"
 DEFAULT_PROD_API_ROOT = "/home/nailong/api"
 DEFAULT_PROD_FRONTEND_ROOT = "/home/nailong/frontend"
-DEFAULT_PROD_BASE_URL = "http://47.118.50.113"
+DEFAULT_PROD_BASE_URL = "https://nailong.fall-star.top"
 DEFAULT_LOCAL_API = "http://127.0.0.1:8000"
 SSH_RE = re.compile(r"^[A-Za-z0-9_.-]+@[A-Za-z0-9.:-]+$")
 

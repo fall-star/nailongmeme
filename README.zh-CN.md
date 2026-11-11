@@ -144,7 +144,7 @@ OpenAPI 3.1：
 
 - [docs/openapi-ip.yaml](docs/openapi-ip.yaml)
 - [docs/openapi-ip.json](docs/openapi-ip.json)
-- 服务器地址：`http://47.118.50.113`
+- 服务器地址：`https://nailong.fall-star.top`
 
 可以直接导入 Swagger UI、Postman 或 ReDoc。
 

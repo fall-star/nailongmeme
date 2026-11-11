@@ -8,6 +8,10 @@ const {
   active = 'all',
   bodyClass = '',
 } = Astro.props;
+const site = Astro.site ?? new URL('https://nailong.fall-star.top');
+const pathname = Astro.url.pathname === '/' ? '/' : Astro.url.pathname.replace(/\/$/, '');
+const canonical = new URL(pathname, site).href;
+const socialImage = new URL('/og-cover.png', site).href;
 ---
 <!doctype html>
 <html lang="zh-CN">
@@ -16,6 +20,18 @@ const {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
     <meta name="theme-color" content="#ffd84d" />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="奶龙表情库" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={socialImage} />
+    <meta property="og:locale" content="zh_CN" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={socialImage} />
     <title>{title}</title>
   </head>
   <body class={bodyClass}>

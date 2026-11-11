@@ -150,7 +150,7 @@ POST /api/admin/sync
 root@47.118.50.113
 /home/nailong/api
 /home/nailong/frontend
-http://47.118.50.113
+https://nailong.fall-star.top
 ```
 
 可通过环境变量覆盖：
@@ -159,7 +159,7 @@ http://47.118.50.113
 MEME_PROD_SSH=root@47.118.50.113
 MEME_PROD_API_ROOT=/home/nailong/api
 MEME_PROD_FRONTEND_ROOT=/home/nailong/frontend
-MEME_PROD_BASE_URL=http://47.118.50.113
+MEME_PROD_BASE_URL=https://nailong.fall-star.top
 ```
 
 同步内容：

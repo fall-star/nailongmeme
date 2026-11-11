@@ -9,8 +9,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <p class="docs-lead">只读、公开、无需认证。图片接口直接返回 JPG/GIF；需要名称、标签和缩略图时使用对应的 JSON 接口。</p>
       <div class="docs-base">
         <span>Base URL</span>
-        <code>http://47.118.50.113/api</code>
-        <span class="docs-status">HTTP · IP 生产环境</span>
+        <code>https://nailong.fall-star.top/api</code>
+        <span class="docs-status">HTTPS · nailong.fall-star.top</span>
       </div>
       <div class="docs-actions">
         <a class="btn btn-yellow" href="/openapi-ip.yaml" target="_blank" rel="noopener">OpenAPI YAML ↗</a>
@@ -43,7 +43,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             <div class="docs-note"><b>元数据用 JSON</b><span>需要 id、名称、标签、图片地址时，用 <code>/api/search/meta</code>、<code>/api/random/meta</code> 或 <code>/api/gallery</code>。</span></div>
             <div class="docs-note"><b>公开数据</b><span>公开图库 1164 张；7 条待审查内容被过滤。未带「奶蛙」标签的条目会派生「奶龙」标签。</span></div>
           </div>
-          <pre><code>BASE="http://47.118.50.113/api"
+          <pre><code>BASE="https://nailong.fall-star.top/api"
 
 # 搜索并保存一张图
 curl "$BASE/search?q=开心" -o meme.jpg
@@ -72,23 +72,23 @@ curl -OJ "$BASE/images/4?download=1"</code></pre>
           </table>
           <h3>返回</h3>
           <p><code>200</code>，响应体为 JPG 或 GIF；<code>Content-Type</code> 为 <code>image/jpeg</code> 或 <code>image/gif</code>。不返回 JSON。</p>
-          <pre><code>curl "http://47.118.50.113/api/search?q=开心" -o happy.jpg
+          <pre><code>curl "https://nailong.fall-star.top/api/search?q=开心" -o happy.jpg
 file happy.jpg       # JPEG image data
-curl -I "http://47.118.50.113/api/search?q=开心"</code></pre>
+curl -I "https://nailong.fall-star.top/api/search?q=开心"</code></pre>
         </section>
 
         <section class="docs-section" id="search-meta">
           <div class="docs-endpoint-head"><span class="method get">GET</span><code>/api/search/meta</code><span class="endpoint-tag json">JSON</span></div>
           <h2>02 · 搜索元数据</h2>
           <p>和 <code>/api/search</code> 使用同样的搜索参数，但返回图片信息、匹配方式和回退状态。适合详情页、搜索结果卡片和“没有精确匹配”提示。</p>
-          <pre><code>curl "http://47.118.50.113/api/search/meta?q=开新"
+          <pre><code>curl "https://nailong.fall-star.top/api/search/meta?q=开新"
 
 &#123;
   "id": "4",
   "name": "乖巧待机",
   "tag": ["奶蛙", "开心"],
-  "image_url": "http://47.118.50.113/api/images/4",
-  "image_download_url": "http://47.118.50.113/api/images/4?download=1",
+  "image_url": "https://nailong.fall-star.top/api/images/4",
+  "image_download_url": "https://nailong.fall-star.top/api/images/4?download=1",
   "width": 134,
   "height": 132,
   "format": "jpeg",
@@ -118,7 +118,7 @@ curl -I "http://47.118.50.113/api/search?q=开心"</code></pre>
               <tr><td><code>offset</code></td><td><code>0</code></td><td>分页偏移。</td></tr>
             </tbody>
           </table>
-          <pre><code>curl "http://47.118.50.113/api/search/list?q=开心&limit=5"
+          <pre><code>curl "https://nailong.fall-star.top/api/search/list?q=开心&limit=5"
 
 &#123;
   "query": "开心",
@@ -134,7 +134,7 @@ curl -I "http://47.118.50.113/api/search?q=开心"</code></pre>
       "tag": ["奶蛙", "开心"],
       "score": 1.0,
       "method": "exact_tag",
-      "thumb_320_url": "http://47.118.50.113/api/thumbs/4/320"
+      "thumb_320_url": "https://nailong.fall-star.top/api/thumbs/4/320"
     &#125;
   ]
 &#125;</code></pre>
@@ -145,8 +145,8 @@ curl -I "http://47.118.50.113/api/search?q=开心"</code></pre>
           <h2>04 · 随机图片</h2>
           <p>从公开图库中返回一张随机图片。支持 <code>seed</code>，适合“换一张”或测试可复现结果。</p>
           <div class="docs-split">
-            <div><h3>图片</h3><pre><code>curl "http://47.118.50.113/api/random" -o random.jpg</code></pre></div>
-            <div><h3>元数据</h3><pre><code>curl "http://47.118.50.113/api/random/meta?seed=7"</code></pre></div>
+            <div><h3>图片</h3><pre><code>curl "https://nailong.fall-star.top/api/random" -o random.jpg</code></pre></div>
+            <div><h3>元数据</h3><pre><code>curl "https://nailong.fall-star.top/api/random/meta?seed=7"</code></pre></div>
           </div>
           <p class="docs-hint">别名：<code>/api/random/image</code>。随机响应使用 <code>Cache-Control: no-store</code>。</p>
         </section>
@@ -166,7 +166,7 @@ curl -I "http://47.118.50.113/api/search?q=开心"</code></pre>
               <tr><td><code>offset</code></td><td><code>0</code></td><td>分页偏移。</td></tr>
             </tbody>
           </table>
-          <pre><code>curl "http://47.118.50.113/api/gallery?tag=奶蛙&limit=2"
+          <pre><code>curl "https://nailong.fall-star.top/api/gallery?tag=奶蛙&limit=2"
 
 &#123;
   "total": 361,
@@ -180,15 +180,15 @@ curl -I "http://47.118.50.113/api/search?q=开心"</code></pre>
       "format": "gif",
       "width": 240,
       "height": 240,
-      "image_url": "http://47.118.50.113/api/images/3",
-      "thumb_url": "http://47.118.50.113/api/thumbs/3/640",
-      "thumb_320_url": "http://47.118.50.113/api/thumbs/3/320"
+      "image_url": "https://nailong.fall-star.top/api/images/3",
+      "thumb_url": "https://nailong.fall-star.top/api/thumbs/3/640",
+      "thumb_320_url": "https://nailong.fall-star.top/api/thumbs/3/320"
     &#125;
   ]
 &#125;</code></pre>
           <h3>缩略图</h3>
           <p><code>GET /api/thumbs/:id/320</code> 或 <code>/640</code>，返回 WebP，适合 <code>&lt;img srcset&gt;</code>。GIF 缩略图使用第一帧；原 GIF 仍走原图接口。</p>
-          <pre><code>curl "http://47.118.50.113/api/thumbs/4/320" -o 4.webp</code></pre>
+          <pre><code>curl "https://nailong.fall-star.top/api/thumbs/4/320" -o 4.webp</code></pre>
           <p>单张图库信息：<code>GET /api/gallery/:id</code>，不存在或已被审查过滤时返回 <code>404</code>。</p>
         </section>
 
@@ -197,10 +197,10 @@ curl -I "http://47.118.50.113/api/search?q=开心"</code></pre>
           <h2>06 · 原图与下载</h2>
           <p>按 ID 返回原图。默认内联展示；加 <code>?download=1</code> 时返回附件。</p>
           <pre><code># 浏览器展示
-curl "http://47.118.50.113/api/images/4" -o 4.jpg
+curl "https://nailong.fall-star.top/api/images/4" -o 4.jpg
 
 # 下载
-curl -OJ "http://47.118.50.113/api/images/4?download=1"</code></pre>
+curl -OJ "https://nailong.fall-star.top/api/images/4?download=1"</code></pre>
           <p>成功响应包含 <code>ETag</code>、<code>Last-Modified</code>、<code>Accept-Ranges</code>，并支持长缓存。未知或待审查 ID 返回 <code>404</code>。</p>
         </section>
 
@@ -209,16 +209,16 @@ curl -OJ "http://47.118.50.113/api/images/4?download=1"</code></pre>
           <h2>07 · 索引</h2>
           <p>完整索引包含 1171 条记录，公开索引包含 1164 条；两者都只含 <code>id</code>、<code>name</code>、<code>tag</code>。</p>
           <pre><code># 完整索引，附件下载
-curl -OJ "http://47.118.50.113/api/memes.json"
+curl -OJ "https://nailong.fall-star.top/api/memes.json"
 
 # 公开索引（过滤 7 条待审查内容）
-curl "http://47.118.50.113/api/memes.public.json"</code></pre>
+curl "https://nailong.fall-star.top/api/memes.public.json"</code></pre>
         </section>
 
         <section class="docs-section" id="health">
           <div class="docs-endpoint-head"><span class="method get">GET</span><code>/api/health</code><span class="endpoint-tag json">JSON</span></div>
           <h2>08 · 健康检查</h2>
-          <pre><code>curl "http://47.118.50.113/api/health"
+          <pre><code>curl "https://nailong.fall-star.top/api/health"
 
 &#123;
   "status": "ok",
