@@ -213,7 +213,7 @@ export default function AuthDialog({ open, mode: initialMode, onClose, onAuth }:
 
             {mode === 'login' ? (
               <form className="auth-form" onSubmit={login}>
-                <label className="auth-field"><span>昵称或邮箱</span><input ref={firstInputRef} autoComplete="username" value={identifier} onChange={(event) => setIdentifier(event.target.value)} placeholder="Fallstar 或 you@example.com" /></label>
+                <label className="auth-field"><span>昵称或邮箱</span><input ref={firstInputRef} autoComplete="username" value={identifier} onChange={(event) => setIdentifier(event.target.value)} placeholder="请输入昵称或邮箱" /></label>
                 <label className="auth-field"><span>密码</span><input type="password" autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="输入密码" /></label>
                 {error && <div className="auth-error">{error}</div>}
                 <div className="auth-actions">
