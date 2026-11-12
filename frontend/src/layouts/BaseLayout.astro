@@ -7,6 +7,7 @@ const {
   description = '奶龙与奶蛙表情包图库，支持搜索、预览和单张下载。',
   active = 'all',
   bodyClass = '',
+  robots = '',
 } = Astro.props;
 const site = Astro.site ?? new URL('https://nailong.fall-star.top');
 const pathname = Astro.url.pathname === '/' ? '/' : Astro.url.pathname.replace(/\/$/, '');
@@ -20,6 +21,7 @@ const socialImage = new URL('/og-cover.png', site).href;
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
     <meta name="theme-color" content="#ffd84d" />
+    {robots && <meta name="robots" content={robots} />}
     <link rel="canonical" href={canonical} />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="奶龙表情库" />

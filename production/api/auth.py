@@ -286,8 +286,8 @@ class ResendCodeRequest(BaseModel):
     challenge_id: str = Field(min_length=16, max_length=64)
 
 
-class AvatarUpload(BaseModel):
-    pass
+class ChangePasswordRequest(BaseModel):
+    new_password: str = Field(min_length=6, max_length=128)
 
 
 @router.post("/register", status_code=201)
@@ -430,8 +430,27 @@ def avatar(user_id: str) -> Response:
         raise HTTPException(404, "avatar not found")
     path = AVATAR_DIR / f"{user_id}.webp"
     if path.is_file():
-        return FileResponse(path, media_type="image/webp", headers={"Cache-Control": "public, max-age=86400"})
+        return FileResponse(path, media_type="image/webp", headers={"Cache-Control": "public, max-age=0, must-revalidate"})
     return Response(_default_avatar_svg(), media_type="image/svg+xml", headers={"Cache-Control": "public, max-age=86400"})
+
+
+@account_router.post("/password")
+def change_password(
+    body: ChangePasswordRequest,
+    request: Request,
+    user: dict[str, Any] = Depends(require_user),
+) -> dict[str, Any]:
+    password = _normalise_password(body.new_password)
+    current_token = request.cookies.get(COOKIE_NAME, "")
+    current_hash = hashlib.sha256(current_token.encode()).hexdigest() if current_token else ""
+    with _db() as conn:
+        conn.execute("UPDATE users SET password_hash=? WHERE id=?", (_hash_password(password), user["id"]))
+        # Keep the current session, but invalidate other sessions after a password change.
+        if current_hash:
+            conn.execute("DELETE FROM sessions WHERE user_id=? AND token_hash<>?", (user["id"], current_hash))
+        else:
+            conn.execute("DELETE FROM sessions WHERE user_id=?", (user["id"],))
+    return {"ok": True}
 
 
 @account_router.post("/avatar")

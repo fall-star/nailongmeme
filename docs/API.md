@@ -21,6 +21,7 @@ Account writes use a secure, host-only session cookie. Read endpoints remain pub
 | POST | `/api/auth/logout` | Delete the current session |
 | GET | `/api/auth/me` | Current signed-in user |
 | POST | `/api/account/avatar` | Upload or replace the current avatar |
+| POST | `/api/account/password` | Set a new password (no old-password check) |
 | GET | `/api/avatars/default` | Default avatar |
 | GET | `/api/avatars/{user_id}` | User avatar |
 

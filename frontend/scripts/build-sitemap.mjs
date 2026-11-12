@@ -19,7 +19,7 @@ const files = await walk(dist);
 const routes = files.map((file) => {
   const relative = file.slice(dist.length).replaceAll('\\', '/').replace(/index\.html$/, '');
   return relative === '/' ? '/' : relative.replace(/\/$/, '');
-}).filter((route) => route !== '/404').sort();
+}).filter((route) => route !== '/404' && route !== '/account').sort();
 
 const escape = (value) => value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&apos;');
 const urls = routes.map((route) => `  <url><loc>${escape(new URL(route, SITE).href)}</loc></url>`).join('\n');

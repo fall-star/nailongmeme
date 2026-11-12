@@ -1,0 +1,13 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ProfilePage from '../components/ProfilePage';
+---
+<BaseLayout
+  title="个人信息 · 奶龙表情库"
+  description="管理奶龙表情库账户的头像和登录密码。"
+  active="all"
+  bodyClass="account-page"
+  robots="noindex, nofollow"
+>
+  <ProfilePage client:load />
+</BaseLayout>

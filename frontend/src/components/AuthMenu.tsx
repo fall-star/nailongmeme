@@ -25,10 +25,19 @@ export default function AuthMenu() {
       setMode(detail?.mode ?? 'login');
       setOpen(true);
     }
+    function onAuthChanged(event: Event) {
+      const detail = (event as CustomEvent<{ user?: AuthUser | null }>).detail;
+      if (detail && 'user' in detail) {
+        setUser(detail.user ?? null);
+        setLoading(false);
+      }
+    }
     window.addEventListener('open-auth', onOpen);
+    window.addEventListener('auth-changed', onAuthChanged);
     return () => {
       cancelled = true;
       window.removeEventListener('open-auth', onOpen);
+      window.removeEventListener('auth-changed', onAuthChanged);
     };
   }, []);
 
@@ -41,10 +50,17 @@ export default function AuthMenu() {
     return () => document.removeEventListener('mousedown', onDocClick);
   }, [menuOpen]);
 
+  function acceptUser(next: AuthUser) {
+    setUser(next);
+    setLoading(false);
+    window.dispatchEvent(new CustomEvent('auth-changed', { detail: { user: next } }));
+  }
+
   async function logout() {
     setMenuOpen(false);
     await fetch('/api/auth/logout', { method: 'POST' });
     setUser(null);
+    window.dispatchEvent(new CustomEvent('auth-changed', { detail: { user: null } }));
   }
 
   return (
@@ -62,6 +78,7 @@ export default function AuthMenu() {
           {menuOpen && (
             <div className="auth-dropdown">
               <div className="auth-dropdown-head"><strong>{user.nickname}</strong><small>{user.is_admin ? '管理员' : '已登录'}</small></div>
+              <a className="auth-dropdown-link" href="/account" onClick={() => setMenuOpen(false)}>个人信息</a>
               <button type="button" onClick={logout}>退出登录</button>
             </div>
           )}
@@ -74,7 +91,7 @@ export default function AuthMenu() {
       )}
     </div>
     {typeof document !== 'undefined' && createPortal(
-      <AuthDialog open={open} mode={mode} onClose={() => setOpen(false)} onAuth={setUser} />,
+      <AuthDialog open={open} mode={mode} onClose={() => setOpen(false)} onAuth={acceptUser} />,
       document.body,
     )}
     </>
