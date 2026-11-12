@@ -192,40 +192,71 @@ export default function GalleryApp({
   const openedRandom = useRef(false);
 
   async function loadGallery() {
-    setLoading(true);
-    setError(null);
+    const cacheKey = 'nailong-gallery-v3';
+    let cached: MemeItem[] | null = null;
     try {
-      const all: MemeItem[] = [];
-      let offset = 0;
-      let total = 0;
-      do {
-        const response = await fetch(`/api/gallery?limit=100&offset=${offset}`);
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const payload = await response.json();
-        total = payload.total;
-        for (const item of payload.items) {
-          all.push({
-            id: item.id,
-            name: item.name,
-            tag: item.tag,
-            format: item.format,
-            width: item.width,
-            height: item.height,
-            bytes: item.bytes,
-            image: `/api/images/${item.id}`,
-            download: `/api/images/${item.id}?download=1`,
-            thumb320: `/api/thumbs/${item.id}/320`,
-            thumb640: `/api/thumbs/${item.id}/640`,
-          });
-        }
-        offset += payload.items.length;
-        if (!payload.items.length) break;
-      } while (offset < total);
-      setItems(all);
+      const raw = window.sessionStorage.getItem(cacheKey);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length) cached = parsed as MemeItem[];
+      }
+    } catch {
+      cached = null;
+    }
+    if (cached) {
+      setItems(cached);
       setLoading(false);
+    } else {
+      setLoading(true);
+    }
+    setError(null);
+
+    async function fetchPage(offset: number) {
+      const response = await fetch(`/api/gallery?limit=100&offset=${offset}`, { cache: 'no-store' });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return response.json() as Promise<{
+        total: number;
+        items: Array<{
+          id: string; name: string; tag: string[]; format: string;
+          width: number | null; height: number | null; bytes: number | null;
+        }>;
+      }>;
+    }
+
+    function mapItem(item: { id: string; name: string; tag: string[]; format: string; width: number | null; height: number | null; bytes: number | null }): MemeItem {
+      return {
+        id: item.id,
+        name: item.name,
+        tag: item.tag,
+        format: item.format,
+        width: item.width,
+        height: item.height,
+        bytes: item.bytes,
+        image: `/api/images/${item.id}`,
+        download: `/api/images/${item.id}?download=1`,
+        thumb320: `/api/thumbs/${item.id}/320`,
+        thumb640: `/api/thumbs/${item.id}/640`,
+      };
+    }
+
+    let firstItems: MemeItem[] | null = null;
+    try {
+      // Fetch the first page to learn the total, then load the remaining
+      // pages concurrently.  Show the first page immediately so the loading
+      // text disappears as soon as there is something to look at.
+      const first = await fetchPage(0);
+      firstItems = first.items.map(mapItem);
+      if (!cached) setItems(firstItems);
+      setLoading(false);
+      const offsets: number[] = [];
+      for (let offset = 100; offset < first.total; offset += 100) offsets.push(offset);
+      const rest = await Promise.all(offsets.map(fetchPage));
+      const all = [first, ...rest].flatMap((page) => page.items.map(mapItem));
+      setItems(all);
+      try { window.sessionStorage.setItem(cacheKey, JSON.stringify(all)); } catch { /* storage may be unavailable */ }
     } catch (err) {
       console.error(err);
-      setError('图库加载失败，请确认本地 API 正在运行。');
+      if (!cached && !firstItems) setError('图库加载失败，请确认本地 API 正在运行。');
       setLoading(false);
     }
   }
