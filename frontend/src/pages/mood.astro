@@ -1,8 +1,23 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import SeoContent from '../components/SeoContent.astro';
 import GalleryApp from '../components/GalleryApp.tsx';
 import categories from '../data/tag-categories.json';
 ---
-<BaseLayout title="按情绪找一张 · 奶龙表情库" description="按开心、无语、委屈、生气等情绪标签筛选奶龙表情。" active="mood">
+<BaseLayout
+  title="奶龙表情包_按情绪找 - 奶龙表情库"
+  description="按开心、无语、委屈、生气、睡觉、摆烂等情绪标签筛选奶龙表情包和奶蛙表情包。"
+  keywords="奶龙表情包,奶蛙表情包,情绪表情包,开心表情包"
+  active="mood"
+  schema={{
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: '按情绪找奶龙表情包',
+    description: '按情绪标签筛选奶龙表情包和奶蛙表情包。',
+    url: 'https://nailong.fall-star.top/mood',
+    inLanguage: 'zh-CN',
+  }}
+>
   <GalleryApp client:only="react" basePath="/mood" allowedTags={categories.mood} onlyAllowedTags hideHero categoryTitle="按情绪，找一张" categoryDesc="这里只保留情绪相关标签。点标签后会在本页直接显示结果。" />
+  <SeoContent variant="mood" />
 </BaseLayout>

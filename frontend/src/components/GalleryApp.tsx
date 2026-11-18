@@ -453,7 +453,7 @@ export default function GalleryApp({
             <div className="hero-grid">
               <div className="hero-copy">
                 <div className="eyebrow"><span className="dot" /> {items.length || 1164} 张奶龙 · 奶蛙表情库</div>
-                <h1>今天翻哪只<br /><span className="mark">奶龙</span>？</h1>
+                <h2 className="hero-title">今天翻哪只<br /><span className="mark">奶龙</span>？</h2>
                 <p className="hero-desc">收录 <strong>{items.length || 1164}</strong> 张奶龙与奶蛙表情，按心情、角色、状态随手翻。找到今天想发的那一张，点开就能下载。</p>
                 <form className="hero-search" onSubmit={submitSearch}>
                   <SearchIcon />
@@ -491,7 +491,7 @@ export default function GalleryApp({
         {hideHero && (
           <section className="category-hero shell">
             <div className="eyebrow"><span className="dot" /> {items.length || 1164} 张公开表情</div>
-            <h1>{categoryTitle || '随便翻翻'}</h1>
+            <h2 className="category-title">{categoryTitle || '随便翻翻'}</h2>
             {categoryDesc && <p>{categoryDesc}</p>}
             {tagChoices.length > 0 && (
               <div className={`category-tags ${showAllTags ? 'all-tags' : ''}`} aria-label="分类标签">

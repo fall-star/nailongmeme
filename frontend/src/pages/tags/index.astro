@@ -1,7 +1,22 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import GalleryApp from '../../components/GalleryApp.tsx';
+import SeoContent from '../../components/SeoContent.astro';
 ---
-<BaseLayout title="全部标签 · 奶龙表情库" description="按标签浏览奶龙与奶蛙表情包，点击标签在当前页面筛选。" active="tags">
+<BaseLayout
+  title="奶龙表情包标签大全_奶蛙表情包 - 奶龙表情库"
+  description="按标签浏览奶龙表情包与奶蛙表情包：开心、无语、委屈、睡觉、摆烂、加冕、跳舞、比心等。"
+  keywords="奶龙表情包,奶蛙表情包,奶龙表情包标签,表情包分类"
+  active="tags"
+  schema={{
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: '奶龙表情包标签大全',
+    description: '按标签浏览奶龙表情包和奶蛙表情包。',
+    url: 'https://nailong.fall-star.top/tags',
+    inLanguage: 'zh-CN',
+  }}
+>
   <GalleryApp client:only="react" basePath="/tags" hideHero showAllTags categoryTitle="按标签，找一张" categoryDesc="所有标签都在这里。点标签后会在本页直接显示结果，不会跳回首页。" />
+  <SeoContent variant="tags" />
 </BaseLayout>

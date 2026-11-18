@@ -1,0 +1,113 @@
+---
+import gallery from '../data/gallery.json';
+import type { MemeItem } from '../lib/types';
+
+type Variant = 'home' | 'nailong' | 'naiwa' | 'tags' | 'mood' | 'actions';
+
+type Copy = {
+  kicker: string;
+  title: string;
+  lead: string;
+  note: string;
+  links: Array<[string, string]>;
+  filter: (item: MemeItem) => boolean;
+  role: string;
+};
+
+const props = Astro.props as { variant?: Variant };
+const variant = props.variant ?? 'home';
+const all = (gallery as { items: MemeItem[] }).items;
+const latest = [...all].sort((a, b) => Number(b.id) - Number(a.id));
+
+const content: Record<Variant, Copy> = {
+  home: {
+    kicker: 'NAILONG & NAIWA MEME LIBRARY',
+    title: '奶龙表情包大全，奶蛙表情包免费下载',
+    lead: '奶龙表情库是一个非官方的奶龙表情包与奶蛙表情包整理站。这里按角色、情绪、动作和常用标签整理表情，支持中文同音字搜索、在线预览和免费单张下载。',
+    note: '想找奶龙表情包，可以进入奶龙专区；想找奶蛙表情包，可以进入奶蛙专区。也可以从下面的热门表情或标签开始翻。',
+    links: [['奶龙表情包', '/nailong'], ['奶蛙表情包', '/naiwa'], ['全部标签', '/tags'], ['情绪表情', '/mood'], ['动作表情', '/actions']],
+    filter: () => true,
+    role: '奶龙表情包 / 奶蛙表情包',
+  },
+  nailong: {
+    kicker: 'NAILONG MEME COLLECTION',
+    title: '奶龙表情包大全',
+    lead: '奶龙表情包专区收录所有奶龙相关表情，包含日常聊天、搞笑、生气、委屈、睡觉和工作状态等场景。所有未标记「奶蛙」的图片也会归入奶龙。',
+    note: '可以按标签继续筛选，也可以直接点开一张查看大图。图片支持免费单张下载，方便保存到手机或电脑。',
+    links: [['全部奶龙表情包', '/nailong'], ['奶蛙表情包', '/naiwa'], ['按情绪找', '/mood'], ['按动作找', '/actions'], ['全部标签', '/tags']],
+    filter: (item) => item.tag.includes('奶龙'),
+    role: '奶龙表情包',
+  },
+  naiwa: {
+    kicker: 'NAIWA MEME COLLECTION',
+    title: '奶蛙表情包大全',
+    lead: '奶蛙表情包专区收录所有带「奶蛙」标签的表情，适合聊天斗图、表达情绪和日常互动。每张图都可以在线预览并免费下载单张原图。',
+    note: '想找更多奶龙相关表情，可以回到奶龙表情包专区；也可以从全部标签里按心情或动作筛选。',
+    links: [['全部奶蛙表情包', '/naiwa'], ['奶龙表情包', '/nailong'], ['按情绪找', '/mood'], ['按动作找', '/actions'], ['全部标签', '/tags']],
+    filter: (item) => item.tag.includes('奶蛙'),
+    role: '奶蛙表情包',
+  },
+  tags: {
+    kicker: 'MEME TAGS',
+    title: '奶龙表情包标签大全',
+    lead: '从开心、无语、委屈、睡觉、摆烂到加冕、跳舞、比心，按标签快速找到适合当前聊天的奶龙表情包和奶蛙表情包。',
+    note: '标签会持续补充。点击任意标签即可在当前页面筛选，不会跳回首页。',
+    links: [['奶龙表情包', '/nailong'], ['奶蛙表情包', '/naiwa'], ['情绪表情包', '/mood'], ['动作表情包', '/actions'], ['回到首页', '/']],
+    filter: () => true,
+    role: '奶龙表情包 / 奶蛙表情包',
+  },
+  mood: {
+    kicker: 'MEME MOODS',
+    title: '按情绪找奶龙表情包',
+    lead: '开心、无语、委屈、生气、困了、摆烂……按情绪标签筛选奶龙表情包和奶蛙表情包，让下一句聊天更有画面。',
+    note: '这里只保留情绪相关标签。想看全部角色和动作，可以进入奶龙、奶蛙或动作专区。',
+    links: [['奶龙表情包', '/nailong'], ['奶蛙表情包', '/naiwa'], ['全部标签', '/tags'], ['动作专区', '/actions'], ['回到首页', '/']],
+    filter: () => true,
+    role: '情绪奶龙表情包',
+  },
+  actions: {
+    kicker: 'MEME ACTIONS',
+    title: '奶龙表情包动作专区',
+    lead: '加冕、跳舞、拳击、比心、鼓掌、转圈……按动作筛选适合群聊和日常互动的奶龙表情包与奶蛙表情包。',
+    note: '动作标签持续整理中。你也可以从全部标签里按角色或情绪继续找。',
+    links: [['奶龙表情包', '/nailong'], ['奶蛙表情包', '/naiwa'], ['情绪专区', '/mood'], ['全部标签', '/tags'], ['回到首页', '/']],
+    filter: () => true,
+    role: '动作奶龙表情包',
+  },
+};
+
+const copy = content[variant];
+let picks = latest.filter(copy.filter).slice(0, 8);
+if (variant === 'home') {
+  const frogs = latest.filter((item) => item.tag.includes('奶蛙')).slice(0, 4);
+  const dragons = latest.filter((item) => !item.tag.includes('奶蛙')).slice(0, 4);
+  picks = [...frogs, ...dragons];
+}
+if (variant !== 'home' && picks.length < 6) picks = latest.slice(0, 8);
+const headingId = `seo-${variant}-title`;
+const pickLabel = variant === 'nailong' ? '全部奶龙表情包' : variant === 'naiwa' ? '全部奶蛙表情包' : '奶龙与奶蛙表情';
+---
+
+<section class="seo-content shell" aria-labelledby={headingId}>
+  <div class="seo-copy">
+    <div class="eyebrow"><span class="dot" /> {copy.kicker}</div>
+    <h1 id={headingId}>{copy.title}</h1>
+    <p class="seo-lead">{copy.lead}</p>
+    <p class="seo-note">{copy.note}</p>
+    <nav class="seo-links" aria-label="表情包分类入口">
+      {copy.links.map(([label, href]) => <a href={href}>{label} <span>→</span></a>)}
+    </nav>
+  </div>
+  <div class="seo-picks">
+    <div class="seo-picks-head"><b>热门表情，直接从这些开始</b><span>{pickLabel}</span></div>
+    <div class="seo-pick-grid">
+      {picks.map((item) => (
+        <a class="seo-pick" href={`/meme/${item.id}`} aria-label={`${item.name} - ${copy.role}`}>
+          <img src={`/api/thumbs/${item.id}/320`} alt={`${item.name} - ${copy.role}`} loading="lazy" width="320" height="320" />
+          <span>{item.name}</span>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+

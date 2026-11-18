@@ -1,12 +1,23 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import GalleryApp from '../components/GalleryApp.tsx';
+import SeoContent from '../components/SeoContent.astro';
 ---
 <BaseLayout
-  title="奶龙表情库 · 今天翻哪只奶龙？"
-  description="奶龙与奶蛙表情包图库，支持中文同音字搜索、大图预览和单张下载。"
+  title="奶龙表情包_奶蛙表情包大全_免费下载 - 奶龙表情库"
+  description="奶龙表情库收录奶龙表情包、奶蛙表情包和聊天常用表情，支持关键词与同音字搜索、在线预览和免费单张下载。"
+  keywords="奶龙,奶龙表情包,奶龙表情库,奶蛙,奶蛙表情包,表情包下载"
+  schema={{
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: '奶龙表情包与奶蛙表情包大全',
+    description: '奶龙表情库收录奶龙表情包、奶蛙表情包，支持搜索、预览和免费单张下载。',
+    url: 'https://nailong.fall-star.top/',
+    inLanguage: 'zh-CN',
+  }}
   active="all"
   bodyClass="home-page"
 >
   <GalleryApp client:only="react" />
+  <SeoContent variant="home" />
 </BaseLayout>

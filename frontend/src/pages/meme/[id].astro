@@ -17,25 +17,61 @@ export function getStaticPaths() {
 }
 
 const { item, related } = Astro.props as { item: MemeItem; related: MemeItem[] };
+const SITE = 'https://nailong.fall-star.top';
+const role = item.tag.includes('奶蛙') ? '奶蛙表情包' : '奶龙表情包';
+const roleHref = role === '奶蛙表情包' ? '/naiwa' : '/nailong';
+const pageUrl = `${SITE}/meme/${item.id}`;
+const imageUrl = `${SITE}${item.image}`;
+const thumbUrl = `${SITE}${item.thumb640}`;
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: '奶龙表情库', item: `${SITE}/` },
+    { '@type': 'ListItem', position: 2, name: role, item: `${SITE}${roleHref}` },
+    { '@type': 'ListItem', position: 3, name: item.name, item: pageUrl },
+  ],
+};
+const imageSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'ImageObject',
+  name: item.name,
+  description: `${item.name}，${role}，支持在线预览和免费单张下载。`,
+  contentUrl: imageUrl,
+  thumbnailUrl: thumbUrl,
+  encodingFormat: item.format === 'gif' ? 'image/gif' : 'image/jpeg',
+  width: item.width || undefined,
+  height: item.height || undefined,
+  url: pageUrl,
+  isPartOf: { '@type': 'WebSite', name: '奶龙表情库', url: SITE },
+};
 ---
-<BaseLayout title={`${item.name} · 奶龙表情库`} description={`${item.name}，奶龙/奶蛙表情包，支持单张下载。`} active="all">
+<BaseLayout
+  title={`${item.name}_${role} - 奶龙表情库`}
+  description={`${item.name}，${role}，可在奶龙表情库在线预览并免费下载单张原图。`}
+  keywords={`${item.name},${role},奶龙表情包,奶蛙表情包,奶龙表情库`}
+  image={item.image}
+  schema={[breadcrumbSchema, imageSchema]}
+  active="all"
+>
   <main class="detail-wrap shell">
     <nav class="crumbs" aria-label="面包屑">
       <a href="/">全部</a><span class="sep">/</span>
+      <a href={roleHref}>{role}</a><span class="sep">/</span>
       {item.tag[0] && <><a href={`/tags?tag=${encodeURIComponent(item.tag[0])}`}>{item.tag[0]}</a><span class="sep">/</span></>}
       <span>{item.name}</span>
     </nav>
 
     <div class="detail-layout">
       <section class="stage" aria-label="图片预览">
-        <img src={item.image} alt={item.name} />
+        <img src={item.image} alt={`${item.name} - ${role}`} />
         <div class="stage-caption">原图 · {item.width} × {item.height} · 单张预览</div>
       </section>
 
       <section class="detail-panel">
         <div class="detail-id">#{item.id} · NAILONG ARCHIVE</div>
         <h1 class="detail-title">{item.name}</h1>
-        <p class="detail-sub">这是一张奶龙/奶蛙表情，适合在聊天里表达当下的心情。</p>
+        <p class="detail-sub">这是一张{role}，适合在聊天里表达当下的心情。</p>
         <div class="detail-tags">
           {item.tag.map((tag) => <a class="tag" href={`/tags?tag=${encodeURIComponent(tag)}`}><span class="hash">#</span>{tag}</a>)}
         </div>
@@ -68,7 +104,7 @@ const { item, related } = Astro.props as { item: MemeItem; related: MemeItem[] }
             <a class="meme-card" href={`/meme/${candidate.id}`}>
               <div class="thumb">
                 <span class={`badge ${candidate.format === 'gif' ? 'gif' : ''}`}>{candidate.format === 'gif' ? 'GIF' : 'JPG'}</span>
-                <img src={candidate.thumb640} alt={candidate.name} loading="lazy" width={candidate.width || undefined} height={candidate.height || undefined} />
+                <img src={candidate.thumb640} alt={`${candidate.name} - ${candidate.tag.includes('奶蛙') ? '奶蛙表情包' : '奶龙表情包'}`} loading="lazy" width={candidate.width || undefined} height={candidate.height || undefined} />
               </div>
               <div class="card-body"><div class="card-title">{candidate.name}</div><div class="card-tags">{candidate.tag.slice(0, 1).map((tag) => <span>{tag}</span>)}</div></div>
             </a>
